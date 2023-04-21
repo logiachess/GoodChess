@@ -1,20 +1,24 @@
 #include "bitboard.h"
 
 
-void print_bitboard(U64 bitboard) {
+void print_bitboard(U64 bitboard)
+{
 
 	printf("\n");
 	// Loop over board ranks
-	for (int rank = 0; rank < 8; ++rank) {
+	for (int rank = 0; rank < 8; ++rank)
+	{
 		
 		// Loop over board files
-		for (int file = 0; file < 8; ++file) {
+		for (int file = 0; file < 8; ++file)
+		{
 
 			// Convert file and rank to square index
 			int square = rank * 8 + file;
 
 			// Print ranks
-			if (!file) {
+			if (!file)
+			{
 
 				printf(" %d  ", 8 - rank);
 			}

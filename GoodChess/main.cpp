@@ -1,22 +1,20 @@
 #include <stdio.h>
+#include "init.h"
 #include "bitboard.h"
 #include "board.h"
+#include "attacks.h"
 
 
+int main()
+{
+	InitAll();
 
+	// loop 64 squares
+	for (int square = 0; square < 64; ++square)
+	{
 
-
-
-int main() {
-
-	U64 bitboard = 0ULL;
-
-	set_bit(bitboard, e4);
-	print_bitboard(bitboard);
-
-	clr_bit(bitboard);
-	print_bitboard(bitboard);
-
+		print_bitboard(pawn_attacks[BLACK][square]);
+	}
 	getchar();
 	return 0;
 }

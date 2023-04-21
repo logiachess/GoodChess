@@ -127,13 +127,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="attacks.cpp" />
     <ClCompile Include="bitboard.cpp" />
+    <ClCompile Include="init.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="makefile" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="attacks.h" />
     <ClInclude Include="bitboard.h" />
     <ClInclude Include="board.h" />
+    <ClInclude Include="init.h" />
+    <ClInclude Include="types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

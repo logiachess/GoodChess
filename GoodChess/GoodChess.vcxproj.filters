@@ -24,12 +24,27 @@
     <ClCompile Include="bitboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="attacks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="init.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitboard.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="board.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="attacks.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="init.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

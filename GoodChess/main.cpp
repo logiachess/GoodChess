@@ -13,9 +13,14 @@ int main()
 	for (int square = 0; square < 64; ++square)
 	{
 
-		print_bitboard(pawn_attacks[BLACK][square]);
+		print_bitboard(knight_attacks[square]);
+		printf("\n bits:%d\n", bitscan_reverse(knight_attacks[square]));
 	}
 	getchar();
+
+
+
+
 	return 0;
 }
 

@@ -1,7 +1,11 @@
 #pragma once
 
-#define U64 unsigned long long int
 
+/* HEADERS */
+
+
+/* DEFINITIONS*/
+#define U64 unsigned long long int
 typedef U64 Bitboard;
 
 

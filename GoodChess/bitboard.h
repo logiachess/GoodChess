@@ -27,7 +27,7 @@ extern unsigned int random_state;
 
 /* FUNCTIONS */
 extern void print_bitboard(U64 bitboard);
-extern Bitboard set_occupancy(int index, Bitboard attack_mask);
+extern Bitboard set_occupancy(int index, int bits, Bitboard attack_mask);
 
 
 

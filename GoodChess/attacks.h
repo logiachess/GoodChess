@@ -9,15 +9,22 @@
 
 
 /* DEFINITIONS */
-extern Bitboard pawn_attacks[2][64];
-extern Bitboard knight_attacks[64];
-extern Bitboard king_attacks[64];
+extern const Bitboard pawn_attacks[2][64];
+extern const Bitboard knight_attacks[64];
+extern const Bitboard king_attacks[64];
+extern Bitboard bishop_attacks[64][512];
+extern Bitboard rook_attacks[64][4096];
 
-extern Bitboard bishop_occupancy[64];
-extern Bitboard rook_occupancy[64];
 
-extern const int bishop_relative_occupancy[64];
-extern const int rook_relative_occupancy[64];
+extern Bitboard bishop_masks[64];
+extern Bitboard rook_masks[64];
+
+extern const Bitboard bishop_occupancy[64];
+extern const Bitboard rook_occupancy[64];
+
+extern const int bishop_relevant_occupancy[64];
+extern const int rook_relevant_occupancy[64];
+
 
 constexpr Bitboard FileABB = 0x0101010101010101ULL;
 constexpr Bitboard FileBBB = FileABB << 1;
@@ -40,7 +47,6 @@ constexpr Bitboard Rank6BB = Rank1BB << (8 * 5);
 constexpr Bitboard Rank7BB = Rank1BB << (8 * 6);
 constexpr Bitboard Rank8BB = Rank1BB << (8 * 7);
 
-
 /* MACROS */
 
 
@@ -53,6 +59,10 @@ extern Bitboard mask_rook_attacks(int square, Bitboard occupied);
 
 extern Bitboard mask_bishop_occupancy(int square);
 extern Bitboard mask_rook_occupancy(int square);
+extern void init_sliders_attacks(PieceType pt);
+
+static inline Bitboard get_bishop_attacks(int square, Bitboard occupancy);
+static inline Bitboard get_rook_attacks(int square, Bitboard occupancy);
 
 
 

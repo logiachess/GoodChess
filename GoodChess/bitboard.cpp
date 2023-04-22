@@ -1,8 +1,4 @@
 #include "bitboard.h"
-#include <stdlib.h>
-#include <random>
-
-
 
 
 const char* sq_to_coord[64] =
@@ -15,29 +11,6 @@ const char* sq_to_coord[64] =
 	"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
 	"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
 	"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
-};
-
-const int bishop_relevant_occupancy[64] = {
-	6, 5, 5, 5, 5, 5, 5, 6,
-	5, 5, 5, 5, 5, 5, 5, 5,
-	5, 5, 7, 7, 7, 7, 5, 5,
-	5, 5, 7, 9, 9, 7, 5, 5,
-	5, 5, 7, 9, 9, 7, 5, 5,
-	5, 5, 7, 7, 7, 7, 5, 5,
-	5, 5, 5, 5, 5, 5, 5, 5,
-	6, 5, 5, 5, 5, 5, 5, 6
-};
-
-
-const int rook_relevant_occupancy[64] = {
-	12, 11, 11, 11, 11, 11, 11, 12,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	12, 11, 11, 11, 11, 11, 11, 12
 };
 
 void init_bitboards()
@@ -80,16 +53,14 @@ void print_bitboard(U64 bitboard)
 	// Print bitboard as U64 value
 	printf("\n     Bitboard: %llu\n", bitboard);
 
-
 }
 
 
-Bitboard set_occupancy(int index, Bitboard attack_mask)
+Bitboard set_occupancy(int index, int bits, Bitboard attack_mask)
 {
 
 	// occupancy map
 	Bitboard occupancy = 0ULL;
-	int bits = count_bits(attack_mask);
 
 	for (int bitcount = 0; bitcount < bits; ++bitcount)
 	{

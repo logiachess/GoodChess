@@ -1,9 +1,10 @@
 #include "init.h"
 #include "attacks.h"
+#include "magic.h"
 #include "board.h"
 
 
-Bitboard pawn_attacks[2][64] =
+const Bitboard pawn_attacks[2][64] =
 { {
 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
@@ -39,7 +40,9 @@ Bitboard pawn_attacks[2][64] =
 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL
 } };
-Bitboard knight_attacks[64] =
+
+
+const Bitboard knight_attacks[64] =
 {
 0x0000000000020400ULL, 0x0000000000050800ULL, 0x00000000000a1100ULL, 0x0000000000142200ULL,
 0x0000000000284400ULL, 0x0000000000508800ULL, 0x0000000000a01000ULL, 0x0000000000402000ULL,
@@ -59,7 +62,8 @@ Bitboard knight_attacks[64] =
 0x0044280000000000ULL, 0x0088500000000000ULL, 0x0010a00000000000ULL, 0x0020400000000000ULL
 };
 
-Bitboard king_attacks[64] =
+
+const Bitboard king_attacks[64] =
 {
 0x0000000000000302ULL, 0x0000000000000705ULL, 0x0000000000000e0aULL, 0x0000000000001c14ULL,
 0x0000000000003828ULL, 0x0000000000007050ULL, 0x000000000000e0a0ULL, 0x000000000000c040ULL,
@@ -79,7 +83,9 @@ Bitboard king_attacks[64] =
 0x2838000000000000ULL, 0x5070000000000000ULL, 0xa0e0000000000000ULL, 0x40c0000000000000ULL
 };
 
-Bitboard bishop_occupancy[64] =
+
+
+const Bitboard bishop_occupancy[64] =
 {
 0x0040201008040200ULL, 0x0000402010080400ULL, 0x0000004020100a00ULL, 0x0000000040221400ULL,
 0x0000000002442800ULL, 0x0000000204085000ULL, 0x0000020408102000ULL, 0x0002040810204000ULL,
@@ -96,10 +102,10 @@ Bitboard bishop_occupancy[64] =
 0x0000020408102000ULL, 0x0000040810204000ULL, 0x00000a1020400000ULL, 0x0000142240000000ULL,
 0x0000284402000000ULL, 0x0000500804020000ULL, 0x0000201008040200ULL, 0x0000402010080400ULL,
 0x0002040810204000ULL, 0x0004081020400000ULL, 0x000a102040000000ULL, 0x0014224000000000ULL,
-0x0028440200000000ULL, 0x0050080402000000ULL, 0x0020100804020000ULL, 0x0040201008040200ULL
+0x0028440200000000ULL, 0x0050080402000000ULL, 0x0020100804020000LL, 0x0040201008040200ULL
 };
 
-Bitboard rook_occupancy[64] =
+const Bitboard rook_occupancy[64] =
 {
 0x000101010101017eULL, 0x000202020202027cULL, 0x000404040404047aULL, 0x0008080808080876ULL,
 0x001010101010106eULL, 0x002020202020205eULL, 0x004040404040403eULL, 0x008080808080807eULL,
@@ -120,38 +126,66 @@ Bitboard rook_occupancy[64] =
 };
 
 
+
+const int bishop_relevant_occupancy[64] = {
+	6, 5, 5, 5, 5, 5, 5, 6,
+	5, 5, 5, 5, 5, 5, 5, 5,
+	5, 5, 7, 7, 7, 7, 5, 5,
+	5, 5, 7, 9, 9, 7, 5, 5,
+	5, 5, 7, 9, 9, 7, 5, 5,
+	5, 5, 7, 7, 7, 7, 5, 5,
+	5, 5, 5, 5, 5, 5, 5, 5,
+	6, 5, 5, 5, 5, 5, 5, 6
+};
+
+
+const int rook_relevant_occupancy[64] = {
+	12, 11, 11, 11, 11, 11, 11, 12,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	12, 11, 11, 11, 11, 11, 11, 12
+};
+
+
 void init_leaper_attacks()
 {
 
-	// loop 64 squares
-	for (int square = 0; square < 64; ++square)
-	{
-		// pawn attacks
-		pawn_attacks[WHITE][square] = mask_pawn_attacks(WHITE, square);
-		pawn_attacks[BLACK][square] = mask_pawn_attacks(BLACK, square);
+	//// loop 64 squares
+	//for (int square = 0; square < 64; ++square)
+	//{
+	//	// pawn attacks
+	//	pawn_attacks[WHITE][square] = mask_pawn_attacks(WHITE, square);
+	//	pawn_attacks[BLACK][square] = mask_pawn_attacks(BLACK, square);
 
-		// knight attacks
-		knight_attacks[square] = mask_knight_attacks(square);
+	//	// knight attacks
+	//	knight_attacks[square] = mask_knight_attacks(square);
 
-		// king attacks
-		king_attacks[square] = mask_king_attacks(square);
-	}
+	//	// king attacks
+	//	king_attacks[square] = mask_king_attacks(square);
+	//}
 }
 
 
-void init_slider_attacks()
-{
-
-	// loop 64 squares
-	for (int square = 0; square < 64; ++square)
-	{
-		// bishop attacks
-		bishop_occupancy[square] = mask_bishop_occupancy(square);
-		// rook attacks
-		rook_occupancy[square] = mask_rook_occupancy(square);
-		// queen attacks
-	}
-}
+//void init_slider_attacks()
+//{
+//
+//	// loop 64 squares
+//	for (int square = 0; square < 64; ++square)
+//	{
+//		// bishop attacks
+//		bishop_occupancy[square] = mask_bishop_occupancy(square);
+//		print_bitboard(bishop_occupancy[square]);
+//
+//		if (square % 4 == 3) printf("\n");
+//		// rook attacks
+//		//rook_occupancy[square] = mask_rook_occupancy(square);
+//		// queen attacks
+//	}
+//}
 
 
 
@@ -159,6 +193,10 @@ void init_slider_attacks()
 void InitAll()
 {
 	init_bitboards();
+	init_sliders_attacks(BISHOP);
+	init_sliders_attacks(ROOK);
+
+
 }
 
 

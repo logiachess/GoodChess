@@ -1,5 +1,6 @@
 #include "attacks.h"
 #include "bitboard.h"
+#include "magic.h"
 
 
 
@@ -215,5 +216,67 @@ Bitboard mask_rook_occupancy(int square)
 	return occupancy;
 }
 
+Bitboard rook_attacks[64][4096];
+Bitboard bishop_attacks[64][512];
+Bitboard bishop_masks[64];
+Bitboard rook_masks[64];
+
+
+void init_sliders_attacks(PieceType pt)
+{
+	for (int square = 0; square < 64; ++square)
+	{
+		bishop_masks[square] = mask_bishop_occupancy(square);
+		rook_masks[square] = mask_rook_occupancy(square);
+
+		Bitboard attack_mask = (pt == BISHOP) ? bishop_masks[square] : rook_masks[square];
+		int relevant_bit_count = count_bits(attack_mask);
+		int occupancy_indices = (1 << relevant_bit_count);
+
+		for (int index = 0; index < occupancy_indices; ++index)
+		{
+			if (pt == BISHOP)
+			{
+				Bitboard occupancy = set_occupancy(index, relevant_bit_count, attack_mask);
+
+				int magic_index = (occupancy * bishop_magics[square]) >> (64 - bishop_relevant_occupancy[square]);
+
+				bishop_attacks[square][magic_index] = mask_bishop_attacks(square, occupancy);
+			}
+			else
+			{
+				Bitboard occupancy = set_occupancy(index, relevant_bit_count, attack_mask);
+
+				int magic_index = (occupancy * rook_magics[square]) >> (64 - rook_relevant_occupancy[square]);
+
+				rook_attacks[square][magic_index] = mask_rook_attacks(square, occupancy);
+			}
+		}
+	}
+
+	Bitboard occupancy = 0ULL;
+	print_bitboard(occupancy);
+
+	print_bitboard(get_bishop_attacks(d4, occupancy));
+}
+
+
+
+static inline Bitboard get_bishop_attacks(int square, Bitboard occupancy)
+{
+	occupancy &= bishop_masks[square];
+	occupancy *= bishop_magics[square];
+	occupancy >>= 64 - bishop_relevant_occupancy[square];
+	return bishop_attacks[square][occupancy];
+}
+
+
+static inline Bitboard get_rook_attacks(int square, Bitboard occupancy)
+{
+	occupancy &= rook_masks[square];
+	occupancy *= rook_magics[square];
+	occupancy >>= 64 - rook_relevant_occupancy[square];
+	return rook_attacks[square][occupancy];
+}
 
 

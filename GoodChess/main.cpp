@@ -9,12 +9,10 @@ int main()
 {
 	InitAll();
 
-	Bitboard attack_mask = mask_rook_occupancy(a1);
-
-	for (int index = 0; index <= 4095; ++index) {
-		print_bitboard(set_occupancy(index, attack_mask));
-		getchar();
-	}
+	print_bitboard((U64)(get_random_U32_number()));
+	print_bitboard((U64)(get_random_U32_number() & 0xFFFF));
+	print_bitboard(get_random_U64_numbers());
+	print_bitboard(generate_magic_number());	
 
 
 

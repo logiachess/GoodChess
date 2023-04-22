@@ -9,6 +9,7 @@
 
 /* DEFINITIONS */
 extern const char* sq_to_coord[64];
+extern unsigned int random_state;
 
 
 /* MACROS */

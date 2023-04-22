@@ -16,6 +16,9 @@ extern Bitboard king_attacks[64];
 extern Bitboard bishop_occupancy[64];
 extern Bitboard rook_occupancy[64];
 
+extern const int bishop_relative_occupancy[64];
+extern const int rook_relative_occupancy[64];
+
 constexpr Bitboard FileABB = 0x0101010101010101ULL;
 constexpr Bitboard FileBBB = FileABB << 1;
 constexpr Bitboard FileCBB = FileABB << 2;

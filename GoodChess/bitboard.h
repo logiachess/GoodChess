@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BITBOARD_H_INCLUDED
+#define BITBOARD_H_INCLUDED
 
 
 /* HEADERS */
@@ -7,6 +8,7 @@
 
 
 /* DEFINITIONS */
+extern const char* sq_to_coord[64];
 
 
 /* MACROS */
@@ -17,16 +19,18 @@
 
 // bitmagic
 #define count_bits(bitboard) ( __builtin_popcountll(bitboard) )
-#define bitscan_forward(bitboard) ( __builtin_ctzll(bitboard) )
-#define bitscan_reverse(bitboard) ( (63 - __builtin_clzll(bitboard) ) )
+#define bitscan_forward(bitboard) ( __builtin_ctzll(bitboard) ) // least significant
+#define bitscan_reverse(bitboard) ( (63 - __builtin_clzll(bitboard) ) ) // most significant
 
 
 
 /* FUNCTIONS */
 extern void print_bitboard(U64 bitboard);
+extern Bitboard set_occupancy(int index, Bitboard attack_mask);
 
 
 
 
 
 
+#endif

@@ -3,6 +3,9 @@
 
 
 /* HEADERS */
+#include <cstdint>
+#include <cstdlib>
+#include <algorithm>
 
 
 /* DEFINITIONS*/
@@ -25,8 +28,9 @@ enum Square	// board squares
 	a1, b1, c1, d1, e1, f1, g1, h1
 };
 
+
 enum Color {
-  WHITE, BLACK, COLOR_NB = 2
+  WHITE, BLACK, BOTH
 };
 
 
@@ -41,7 +45,7 @@ enum Rank : int {
 
 
 enum PieceType {
-	NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
+	NO_PIECE_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
 };
 
 
@@ -50,6 +54,24 @@ enum Piece {
 	WP, WN, WB, WR, WQ, WK,
 	BP, BN, BB, BR, BQ, BK
 };
+
+
+#define ENABLE_INCR_OPERATORS_ON(T)                                \
+inline T& operator++(T& d) { return d = T(int(d) + 1); }           \
+inline T& operator--(T& d) { return d = T(int(d) - 1); }
+
+
+ENABLE_INCR_OPERATORS_ON(Piece)
+ENABLE_INCR_OPERATORS_ON(PieceType)
+ENABLE_INCR_OPERATORS_ON(Square)
+ENABLE_INCR_OPERATORS_ON(File)
+ENABLE_INCR_OPERATORS_ON(Rank)
+
+constexpr Square operator+(Square s, int d) { return Square(int(s) + int(d)); }
+constexpr Square operator-(Square s, int d) { return Square(int(s) - int(d)); }
+inline Square& operator+=(Square& s, int d) { return s = s + d; }
+inline Square& operator-=(Square& s, int d) { return s = s - d; }
+
 
 
 

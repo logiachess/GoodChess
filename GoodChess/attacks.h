@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ATTACKS_H_INCLUDED
+#define ATTACKS_H_INCLUDED
 
 
 /* HEADERS */
@@ -44,6 +45,8 @@ constexpr Bitboard Rank8BB = Rank1BB << (8 * 7);
 extern Bitboard mask_pawn_attacks(int side, int square);
 extern Bitboard mask_knight_attacks(int square);
 extern Bitboard mask_king_attacks(int square);
+extern Bitboard mask_bishop_attacks(int square, Bitboard occupied);
+extern Bitboard mask_rook_attacks(int square, Bitboard occupied);
 
 extern Bitboard mask_bishop_occupancy(int square);
 extern Bitboard mask_rook_occupancy(int square);
@@ -53,3 +56,4 @@ extern Bitboard mask_rook_occupancy(int square);
 
 
 
+#endif

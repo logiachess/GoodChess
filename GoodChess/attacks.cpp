@@ -2,6 +2,7 @@
 #include "bitboard.h"
 
 
+
 Bitboard mask_pawn_attacks(int side, int square)
 {
 
@@ -75,6 +76,86 @@ Bitboard mask_king_attacks(int square)
 	// return attack map
 	return attacks;
 }
+
+
+
+
+Bitboard mask_bishop_attacks(int square, Bitboard occupied)
+{
+	// result attacks bitboard
+	Bitboard attacks = 0ULL;
+
+	int rank, file;
+
+	int target_rank = square / 8;
+	int target_file = square % 8;
+
+	// mask relevant bits
+	for (rank = target_rank + 1, file = target_file + 1; rank <= 7 && file <= 7; ++rank, ++file) {
+
+		attacks |= (1ULL << (rank * 8 + file));
+		if ((1ULL << (rank * 8 + file)) & occupied) break;
+	}
+	for (rank = target_rank - 1, file = target_file - 1; rank >= 0 && file >= 0; --rank, --file) {
+
+		attacks |= (1ULL << (rank * 8 + file));
+		if ((1ULL << (rank * 8 + file)) & occupied) break;
+	}
+	for (rank = target_rank - 1, file = target_file + 1; rank >= 0 && file <= 7; --rank, ++file) {
+
+		attacks |= (1ULL << (rank * 8 + file));
+		if ((1ULL << (rank * 8 + file)) & occupied) break;
+	}
+	for (rank = target_rank + 1, file = target_file - 1; rank <= 7 && file >= 0; ++rank, --file) {
+
+		attacks |= (1ULL << (rank * 8 + file));
+		if ((1ULL << (rank * 8 + file)) & occupied) break;
+	}
+
+	// return relative attacks squares
+	return attacks;
+}
+
+
+
+
+Bitboard mask_rook_attacks(int square, Bitboard occupied)
+{
+	// result attacks bitboard
+	Bitboard attacks = 0ULL;
+
+	int rank, file;
+
+	int target_rank = square / 8;
+	int target_file = square % 8;
+
+	// mask relevant bits
+	for (rank = target_rank + 1; rank <= 7;  ++rank) {
+
+		attacks |= (1ULL << (rank * 8 + target_file));
+		if ((1ULL << (rank * 8 + target_file)) & occupied) break;
+	}
+	for (rank = target_rank - 1; rank >= 0; --rank) {
+
+		attacks |= (1ULL << (rank * 8 + target_file));
+		if ((1ULL << (rank * 8 + target_file)) & occupied) break;
+	}
+	for (file = target_file + 1; file <= 7; ++file) {
+
+		attacks |= (1ULL << (target_rank * 8 + file));
+		if ((1ULL << (target_rank * 8 + file)) & occupied) break;
+	}
+	for (file = target_file - 1; file >= 0; --file) {
+
+		attacks |= (1ULL << (target_rank * 8 + file));
+		if ((1ULL << (target_rank * 8 + file)) & occupied) break;
+	}
+
+	// return relative attacks squares
+	return attacks;
+}
+
+
 
 
 Bitboard mask_bishop_occupancy(int square)

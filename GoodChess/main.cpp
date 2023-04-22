@@ -9,27 +9,12 @@ int main()
 {
 	InitAll();
 
-	// loop 64 squares
-	for (int square = 0; square < 64; ++square)
-	{
+	Bitboard attack_mask = mask_rook_occupancy(a1);
 
-		print_bitboard(pawn_attacks[WHITE][square]);
-		//printf("\n bits:%d\n", bitscan_reverse(knight_attacks[square]));
-		if (square % 4 == 3) printf("\n");
+	for (int index = 0; index <= 4095; ++index) {
+		print_bitboard(set_occupancy(index, attack_mask));
+		getchar();
 	}
-	printf("},{");
-	for (int square = 0; square < 64; ++square)
-	{
-
-		print_bitboard(pawn_attacks[BLACK][square]);
-		//printf("\n bits:%d\n", bitscan_reverse(knight_attacks[square]));
-		if (square % 4 == 3) printf("\n");
-	}
-
-	//print_bitboard(mask_bishop_attacks(e4));
-
-
-	getchar();
 
 
 

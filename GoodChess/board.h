@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BOARD_H_INCLUDED
+#define BOARD_H_INCLUDED
 
 
 /* HEADERS */
@@ -17,3 +18,4 @@
 
 
 
+#endif

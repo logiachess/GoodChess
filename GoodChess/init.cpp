@@ -155,10 +155,10 @@ void init_slider_attacks()
 
 
 
+
 void InitAll()
 {
-	//init_leaper_attacks();
-	//init_slider_attacks();
+	init_bitboards();
 }
 
 

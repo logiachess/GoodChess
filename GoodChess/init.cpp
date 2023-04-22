@@ -7,6 +7,8 @@ Bitboard pawn_attacks[2][64];
 Bitboard knight_attacks[64];
 Bitboard king_attacks[64];
 
+Bitboard bishop_occupancy[64];
+
 
 void init_leaper_attacks()
 {
@@ -33,9 +35,9 @@ void init_slider_attacks()
 	// loop 64 squares
 	for (int square = 0; square < 64; ++square)
 	{
-		// rook attacks
-
 		// bishop attacks
+		bishop_occupancy[square] = mask_bishop_occupancy(square);
+		// rook attacks
 		
 		// queen attacks
 	}
@@ -46,7 +48,7 @@ void init_slider_attacks()
 void InitAll()
 {
 	init_leaper_attacks();
-	init_slider_attacks;
+	init_slider_attacks();
 }
 
 

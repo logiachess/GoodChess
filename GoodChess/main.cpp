@@ -13,11 +13,12 @@ int main()
 	for (int square = 0; square < 64; ++square)
 	{
 
-		print_bitboard(knight_attacks[square]);
-		printf("\n bits:%d\n", bitscan_reverse(knight_attacks[square]));
+		print_bitboard(bishop_occupancy[square]);
+		//printf("\n bits:%d\n", bitscan_reverse(knight_attacks[square]));
 	}
-	getchar();
 
+	//print_bitboard(mask_bishop_attacks(e4));
+	getchar();
 
 
 

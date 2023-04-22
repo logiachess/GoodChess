@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TYPES_H_INCLUDED
+#define TYPES_H_INCLUDED
 
 
 /* HEADERS */
@@ -6,10 +7,13 @@
 
 /* DEFINITIONS*/
 #define U64 unsigned long long int
-typedef U64 Bitboard;
+using Bitboard = U64;
+
+constexpr int MAX_MOVES = 256;
+constexpr int MAX_PLY = 246;
 
 
-enum // board squares
+enum Square	// board squares
 {
 	a8, b8, c8, d8, e8, f8, g8, h8,
 	a7, b7, c7, d7, e7, f7, g7, h7,
@@ -21,7 +25,32 @@ enum // board squares
 	a1, b1, c1, d1, e1, f1, g1, h1
 };
 
-enum // piece colors
-{
-	WHITE, BLACK
+enum Color {
+  WHITE, BLACK, COLOR_NB = 2
 };
+
+
+enum File : int {
+	FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NB
+};
+
+
+enum Rank : int {
+	RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NB
+};
+
+
+enum PieceType {
+	NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
+};
+
+
+enum Piece {
+	NO_PIECE,
+	WP, WN, WB, WR, WQ, WK,
+	BP, BN, BB, BR, BQ, BK
+};
+
+
+
+#endif

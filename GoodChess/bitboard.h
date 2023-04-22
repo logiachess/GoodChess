@@ -21,6 +21,7 @@
 #define bitscan_reverse(bitboard) ( (63 - __builtin_clzll(bitboard) ) )
 
 
+
 /* FUNCTIONS */
 extern void print_bitboard(U64 bitboard);
 

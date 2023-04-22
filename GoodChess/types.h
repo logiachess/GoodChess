@@ -25,8 +25,9 @@ enum Square	// board squares
 	a4, b4, c4, d4, e4, f4, g4, h4,
 	a3, b3, c3, d3, e3, f3, g3, h3,
 	a2, b2, c2, d2, e2, f2, g2, h2,
-	a1, b1, c1, d1, e1, f1, g1, h1
+	a1, b1, c1, d1, e1, f1, g1, h1, NO_SQUARE
 };
+
 
 
 enum Color {
@@ -50,10 +51,18 @@ enum PieceType {
 
 
 enum Piece {
-	NO_PIECE,
 	WP, WN, WB, WR, WQ, WK,
-	BP, BN, BB, BR, BQ, BK
+	BP, BN, BB, BR, BQ, BK,
+	NO_PIECE
 };
+
+
+enum  Castlingrights
+{
+	WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8
+};
+
+
 
 
 #define ENABLE_INCR_OPERATORS_ON(T)                                \
@@ -71,7 +80,6 @@ constexpr Square operator+(Square s, int d) { return Square(int(s) + int(d)); }
 constexpr Square operator-(Square s, int d) { return Square(int(s) - int(d)); }
 inline Square& operator+=(Square& s, int d) { return s = s + d; }
 inline Square& operator-=(Square& s, int d) { return s = s - d; }
-
 
 
 

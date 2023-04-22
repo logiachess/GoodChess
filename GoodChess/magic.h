@@ -9,6 +9,7 @@
 /* DEFINITIONS */
 extern const U64 rook_magics[64];
 extern const U64 bishop_magics[64];
+extern unsigned int random_state;
 
 
 /* MACROS */

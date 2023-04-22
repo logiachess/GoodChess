@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="attacks.cpp" />
     <ClCompile Include="bitboard.cpp" />
+    <ClCompile Include="board.cpp" />
     <ClCompile Include="init.cpp" />
     <ClCompile Include="magic.cpp" />
     <ClCompile Include="main.cpp" />

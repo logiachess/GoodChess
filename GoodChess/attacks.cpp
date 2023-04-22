@@ -224,6 +224,9 @@ Bitboard rook_masks[64];
 
 void init_sliders_attacks(PieceType pt)
 {
+	U64 occupancy = 0ULL;
+	set_bit(occupancy, b6);
+
 	for (int square = 0; square < 64; ++square)
 	{
 		bishop_masks[square] = mask_bishop_occupancy(square);
@@ -253,11 +256,6 @@ void init_sliders_attacks(PieceType pt)
 			}
 		}
 	}
-
-	Bitboard occupancy = 0ULL;
-	print_bitboard(occupancy);
-
-	print_bitboard(get_bishop_attacks(d4, occupancy));
 }
 
 
@@ -279,4 +277,23 @@ static inline Bitboard get_rook_attacks(int square, Bitboard occupancy)
 	return rook_attacks[square][occupancy];
 }
 
+
+static inline Bitboard get_queen_attacks(int square, Bitboard occupancy)
+{
+	Bitboard queen_attacks = 0ULL;
+	Bitboard rook_occupancy = occupancy;
+	Bitboard bishop_occupancy = occupancy;
+
+	bishop_occupancy &= bishop_masks[square];
+	bishop_occupancy *= bishop_magics[square];
+	bishop_occupancy >>= 64 - bishop_relevant_occupancy[square];
+	queen_attacks = bishop_attacks[square][bishop_occupancy];
+
+	rook_occupancy &= rook_masks[square];
+	rook_occupancy *= rook_magics[square];
+	rook_occupancy >>= 64 - rook_relevant_occupancy[square];
+	queen_attacks |= rook_attacks[square][rook_occupancy];
+
+	return queen_attacks;
+}
 

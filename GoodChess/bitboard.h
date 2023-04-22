@@ -5,16 +5,15 @@
 /* HEADERS */
 #include "stdio.h"
 #include "types.h"
+#include <map>
 
 
 /* DEFINITIONS */
-extern const char* sq_to_coord[64];
-extern unsigned int random_state;
 
 
 /* MACROS */
-#define get_bit(bitboard, square) (bitboard & (1ULL << square) ) // Check if bit value is one
-#define set_bit(bitboard, square) (bitboard |= (1ULL << square) ) // Set bit to one
+#define get_bit(bitboard, square) ((bitboard) & (1ULL << square) ) // Check if bit value is one
+#define set_bit(bitboard, square) ((bitboard) |= (1ULL << square) ) // Set bit to one
 #define pop_bit(bitboard, square) ( (bitboard) &= ~( 1ULL << (square) ) ) // Pop bit
 #define clr_bit(bitboard) ((bitboard) &= (bitboard - 1)) // Clear bitboard
 
@@ -25,8 +24,10 @@ extern unsigned int random_state;
 
 
 
+
+
 /* FUNCTIONS */
-extern void print_bitboard(U64 bitboard);
+extern void print_bitboard(Bitboard bitboard);
 extern Bitboard set_occupancy(int index, int bits, Bitboard attack_mask);
 
 

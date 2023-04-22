@@ -1,5 +1,7 @@
 #include "bitboard.h"
 
+#include <iostream>
+#include <iomanip>
 
 void print_bitboard(U64 bitboard)
 {
@@ -34,6 +36,7 @@ void print_bitboard(U64 bitboard)
 
 	// Print bitboard as U64 value
 	printf("\n     Bitboard: %llu\n", bitboard);
+
 
 }
 

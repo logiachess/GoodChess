@@ -13,6 +13,7 @@ extern Bitboard knight_attacks[64];
 extern Bitboard king_attacks[64];
 
 extern Bitboard bishop_occupancy[64];
+extern Bitboard rook_occupancy[64];
 
 constexpr Bitboard FileABB = 0x0101010101010101ULL;
 constexpr Bitboard FileBBB = FileABB << 1;
@@ -43,7 +44,9 @@ constexpr Bitboard Rank8BB = Rank1BB << (8 * 7);
 extern Bitboard mask_pawn_attacks(int side, int square);
 extern Bitboard mask_knight_attacks(int square);
 extern Bitboard mask_king_attacks(int square);
+
 extern Bitboard mask_bishop_occupancy(int square);
+extern Bitboard mask_rook_occupancy(int square);
 
 
 

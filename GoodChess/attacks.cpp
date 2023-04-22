@@ -106,5 +106,33 @@ Bitboard mask_bishop_occupancy(int square)
 }
 
 
+Bitboard mask_rook_occupancy(int square)
+{
+	// result occupancy bitboard
+	Bitboard occupancy = 0ULL;
+
+	int rank, file;
+
+	int target_rank = square / 8;
+	int target_file = square % 8;
+
+	// mask relevant bits
+	for (rank = target_rank + 1;  rank <= 6; ++rank) {
+		occupancy |= (1ULL << (rank * 8 + target_file));
+	}
+	for (rank = target_rank - 1;  rank >= 1; --rank) {
+		occupancy |= (1ULL << (rank * 8 + target_file));
+	}
+	for (file = target_file + 1;  file <= 6; ++file) {
+		occupancy |= (1ULL << (target_rank * 8 + file));
+	}
+	for (file = target_file - 1;  file >= 1; --file) {
+		occupancy |= (1ULL << (target_rank * 8 + file));
+	}
+
+	// return relative occupancy squares
+	return occupancy;
+}
+
 
 

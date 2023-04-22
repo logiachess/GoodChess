@@ -28,7 +28,9 @@ enum Square	// board squares
 	a1, b1, c1, d1, e1, f1, g1, h1, NO_SQUARE
 };
 
-
+enum Boolen {
+	FALSE, TRUE
+};
 
 enum Color {
   WHITE, BLACK, BOTH

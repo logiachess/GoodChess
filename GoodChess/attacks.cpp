@@ -253,6 +253,7 @@ void init_sliders_attacks(PieceType pt)
 				int magic_index = (occupancy * rook_magics[square]) >> (64 - rook_relevant_occupancy[square]);
 
 				rook_attacks[square][magic_index] = mask_rook_attacks(square, occupancy);
+
 			}
 		}
 	}
@@ -296,4 +297,21 @@ static inline Bitboard get_queen_attacks(int square, Bitboard occupancy)
 
 	return queen_attacks;
 }
+
+
+static inline int is_square_attacked(int square, int side)
+{
+	if ((side == WHITE) && (pawn_attacks[BLACK][square] & bitboards[WP])) return TRUE;
+	if ((side == BLACK) && (pawn_attacks[WHITE][square] & bitboards[BP])) return TRUE;
+
+	if (knight_attacks[square] & ((side == WHITE) ? bitboards[WN] : bitboards[BN])) return 1;
+	if ((get_bishop_attacks(square, occupancies[BOTH])) & ((side == WHITE) ? bitboards[WB] : bitboards[BB]) ) return TRUE;
+	if ((get_rook_attacks(square, occupancies[BOTH])) & ((side == WHITE) ? bitboards[WR] : bitboards[BR]) ) return TRUE;
+	if ((get_queen_attacks(square, occupancies[BOTH])) & ((side == WHITE) ? bitboards[WQ] : bitboards[BQ]) ) return TRUE;
+	if (king_attacks[square] && ((side == WHITE) ? bitboards[WK] : bitboards[BK])) return TRUE;
+
+	return FALSE;
+}
+
+
 

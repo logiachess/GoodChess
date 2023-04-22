@@ -64,6 +64,7 @@ extern void init_sliders_attacks(PieceType pt);
 static inline Bitboard get_bishop_attacks(int square, Bitboard occupancy);
 static inline Bitboard get_rook_attacks(int square, Bitboard occupancy);
 static inline Bitboard get_queen_attacks(int square, Bitboard occupancy);
+static inline int is_square_attacked(int square, int side);
 
 
 

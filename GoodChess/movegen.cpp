@@ -158,32 +158,54 @@ void generate_moves()
 				}
 				break;
 			case WK:
-					if (castle & WKCA)
+				if (castle & WKCA)
+				{
+					// check empty
+					if (!get_bit(occupancies[BOTH], f1) && !get_bit(occupancies[BOTH], g1))
 					{
-						// check empty
-						if (!get_bit(occupancies[BOTH], f1) && !get_bit(occupancies[BOTH], g1))
+						// check safety
+						if (!is_square_attacked(f1, BLACK) && !is_square_attacked(e1, BLACK))
 						{
-							// check safety
-							if (!is_square_attacked(f1, BLACK) && !is_square_attacked(e1, BLACK))
-							{
-								printf("Castle: O-O\n");
-							}
-
+							printf("Castle: O-O\n");
 						}
+
 					}
-					if (castle & WQCA)
+				}
+				if (castle & WQCA)
+				{
+					// check empty
+					if (!get_bit(occupancies[BOTH], d1) && !get_bit(occupancies[BOTH], c1) && !get_bit(occupancies[BOTH], b1))
 					{
-						// check empty
-						if (!get_bit(occupancies[BOTH], d1) && !get_bit(occupancies[BOTH], c1) && !get_bit(occupancies[BOTH], b1))
+						// check safety
+						if (!is_square_attacked(d1, BLACK) && !is_square_attacked(e1, BLACK))
 						{
-							// check safety
-							if (!is_square_attacked(d1, BLACK) && !is_square_attacked(e1, BLACK))
-							{
-								printf("Castle: O-O-O\n");
-							}
-
+							printf("Castle: O-O-O\n");
 						}
+
 					}
+				}
+				while (bitboard)
+				{
+					from = bitscan_forward(bitboard);
+					attacks = (king_attacks[from]) & (~occupancies[WHITE]);
+
+					while (attacks)
+					{
+						to = bitscan_forward(attacks);
+						if (get_bit(occupancies[BLACK], to))
+						{
+							printf("kingx: %s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+						else
+						{
+							printf("king: %s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+
+						pop_bit(attacks, to);
+					}
+
+					pop_bit(bitboard, from);
+				}
 				break;
 			case WN:
 				while (bitboard)
@@ -225,6 +247,54 @@ void generate_moves()
 						else
 						{
 							printf("bishop:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+
+						pop_bit(attacks, to);
+					}
+
+					pop_bit(bitboard, from);
+				}
+				break;
+			case WR:
+				while (bitboard)
+				{
+					from = bitscan_forward(bitboard);
+					attacks = (get_rook_attacks(from, occupancies[BOTH])) & (~occupancies[WHITE]);
+
+					while (attacks)
+					{
+						to = bitscan_forward(attacks);
+						if (get_bit(occupancies[BLACK], to))
+						{
+							printf("rookx:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+						else
+						{
+							printf("rook:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+
+						pop_bit(attacks, to);
+					}
+
+					pop_bit(bitboard, from);
+				}
+				break;
+			case WQ:
+				while (bitboard)
+				{
+					from = bitscan_forward(bitboard);
+					attacks = (get_queen_attacks(from, occupancies[BOTH])) & (~occupancies[WHITE]);
+
+					while (attacks)
+					{
+						to = bitscan_forward(attacks);
+						if (get_bit(occupancies[BLACK], to))
+						{
+							printf("queenx:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+						else
+						{
+							printf("queen:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
 						}
 
 						pop_bit(attacks, to);
@@ -301,7 +371,7 @@ void generate_moves()
 
 					pop_bit(bitboard, from);
 				}
-
+				break;
 			case BK:
 				if (castle & BKCA)
 				{
@@ -328,6 +398,28 @@ void generate_moves()
 						}
 
 					}
+				}
+				while (bitboard)
+				{
+					from = bitscan_forward(bitboard);
+					attacks = (king_attacks[from]) & (~occupancies[BLACK]);
+
+					while (attacks)
+					{
+						to = bitscan_forward(attacks);
+						if (get_bit(occupancies[WHITE], to))
+						{
+							printf("kingx: %s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+						else
+						{
+							printf("king: %s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+
+						pop_bit(attacks, to);
+					}
+
+					pop_bit(bitboard, from);
 				}
 				break;
 			case BN:
@@ -369,6 +461,54 @@ void generate_moves()
 						else
 						{
 							printf("bishop:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+
+						pop_bit(attacks, to);
+					}
+
+					pop_bit(bitboard, from);
+				}
+				break;
+			case BR:
+				while (bitboard)
+				{
+					from = bitscan_forward(bitboard);
+					attacks = (get_rook_attacks(from, occupancies[BOTH])) & (~occupancies[BLACK]);
+
+					while (attacks)
+					{
+						to = bitscan_forward(attacks);
+						if (get_bit(occupancies[WHITE], to))
+						{
+							printf("rookx:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+						else
+						{
+							printf("rook:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+
+						pop_bit(attacks, to);
+					}
+
+					pop_bit(bitboard, from);
+				}
+				break;
+			case BQ:
+				while (bitboard)
+				{
+					from = bitscan_forward(bitboard);
+					attacks = (get_queen_attacks(from, occupancies[BOTH])) & (~occupancies[BLACK]);
+
+					while (attacks)
+					{
+						to = bitscan_forward(attacks);
+						if (get_bit(occupancies[WHITE], to))
+						{
+							printf("queenx:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+						else
+						{
+							printf("queen:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
 						}
 
 						pop_bit(attacks, to);

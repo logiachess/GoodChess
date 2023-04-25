@@ -134,6 +134,8 @@
     <ClCompile Include="magic.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="makefile" />
+    <ClCompile Include="misc.cpp" />
+    <ClCompile Include="movegen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="attacks.h" />
@@ -141,6 +143,8 @@
     <ClInclude Include="board.h" />
     <ClInclude Include="init.h" />
     <ClInclude Include="magic.h" />
+    <ClInclude Include="misc.h" />
+    <ClInclude Include="movegen.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

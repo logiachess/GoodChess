@@ -73,7 +73,6 @@ void parse_fen(const std::string& command)
 
 	memset(occupancies, 0ULL, sizeof(occupancies));
 
-	side = WHITE;
 	enpassant = NO_SQUARE;
 	castle = 0;
 
@@ -127,6 +126,9 @@ void parse_fen(const std::string& command)
 
 		}
 	}
+
+	//Parse turn
+	side = (turn == "w") ? WHITE : BLACK;
 
 	//Parse castling rights
 	for (const char c : castle_perm) {

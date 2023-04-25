@@ -13,7 +13,13 @@
 
 
 /* FUNCTIONS */
-static inline void generate_moves();
+static inline Bitboard get_bishop_attacks(int square, Bitboard occupancy);
+static inline Bitboard get_rook_attacks(int square, Bitboard occupancy);
+static inline Bitboard get_queen_attacks(int square, Bitboard occupancy);
+static inline int is_square_attacked(int square, int side);
+
+// static inline
+extern void generate_moves();
 
 
 

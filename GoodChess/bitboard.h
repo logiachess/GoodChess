@@ -35,4 +35,5 @@ extern Bitboard set_occupancy(int index, int bits, Bitboard attack_mask);
 
 
 
+
 #endif

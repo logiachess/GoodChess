@@ -7,7 +7,7 @@
 #include "movegen.h"
 	
 
-#define empty_board "8/8/8/8/8/8/8/8 w - - "
+#define empty_board "8/8/8/8/8/8/8/8 b - - "
 #define start_position "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 #define tricky_position "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 "
 #define killer_position "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1"
@@ -21,13 +21,21 @@ int main()
 	parse_fen(tricky_position);
 	print_board();
 
-	Moves_list moves[1];
-	moves->count = 0;
 
-	generate_moves(moves);
+	Moves_list move_list[1];
+	generate_moves(move_list);
 
-	print_moves_list(moves);
-	//generate_moves();
+	for (int move_count = 0; move_count < move_list->count; ++move_count)
+	{
+		int move = move_list->moves[move_count];
+		Board_copy copyy = copy_board();
+		make_move(move, ALL_MOVE);
+		print_board();
+		getchar();
+		restore_board(copyy);
+		print_board();
+		getchar();
+	}
 		
 
 	return 0;

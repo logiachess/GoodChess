@@ -83,7 +83,10 @@ void generate_moves()
 
 	Bitboard bitboard, attacks;
 
-	for (Piece piece = WP; piece <= BK; ++piece)
+	Piece start_piece = (side == WHITE) ? WP : BP;
+	Piece end_piece = (side == WHITE) ? WK : BK;
+
+	for (Piece piece = start_piece; piece <= end_piece; ++piece)
 	{
 		bitboard = bitboards[piece];
 
@@ -186,9 +189,50 @@ void generate_moves()
 				while (bitboard)
 				{
 					from = bitscan_forward(bitboard);
+					attacks = (knight_attacks[from]) & (~occupancies[WHITE]);
 
-					pop_bit(bitboard, to);
+					while (attacks)
+					{
+						to = bitscan_forward(attacks);
+						if (get_bit(occupancies[BLACK], to))
+						{
+							printf("knightx: %s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+						else
+						{
+							printf("knight: %s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+
+						pop_bit(attacks, to);
+					}
+
+					pop_bit(bitboard, from);
 				}
+				break;
+			case WB:
+				while (bitboard)
+				{
+					from = bitscan_forward(bitboard);
+					attacks = (get_bishop_attacks(from, occupancies[BOTH])) & (~occupancies[WHITE]);
+
+					while (attacks)
+					{
+						to = bitscan_forward(attacks);
+						if (get_bit(occupancies[BLACK], to))
+						{
+							printf("bishopx:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+						else
+						{
+							printf("bishop:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+
+						pop_bit(attacks, to);
+					}
+
+					pop_bit(bitboard, from);
+				}
+				break;
 			}
 		}
 		else
@@ -284,6 +328,53 @@ void generate_moves()
 						}
 
 					}
+				}
+				break;
+			case BN:
+				while (bitboard)
+				{
+					from = bitscan_forward(bitboard);
+					attacks = knight_attacks[from] & (~occupancies[BLACK]);
+
+					while (attacks)
+					{
+						to = bitscan_forward(attacks);
+						if (!get_bit(occupancies[WHITE], to))
+						{
+							printf("knight: %s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+						else
+						{
+							printf("knight x : %s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+
+						pop_bit(attacks, to);
+					}
+					pop_bit(bitboard, from);
+				}
+				break;
+			case BB:
+				while (bitboard)
+				{
+					from = bitscan_forward(bitboard);
+					attacks = (get_bishop_attacks(from, occupancies[BOTH])) & (~occupancies[BLACK]);
+
+					while (attacks)
+					{
+						to = bitscan_forward(attacks);
+						if (get_bit(occupancies[WHITE], to))
+						{
+							printf("bishopx:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+						else
+						{
+							printf("bishop:%s%s\n", sq_to_coord[from], sq_to_coord[to]);
+						}
+
+						pop_bit(attacks, to);
+					}
+
+					pop_bit(bitboard, from);
 				}
 				break;
 			}

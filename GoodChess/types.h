@@ -11,10 +11,6 @@
 /* DEFINITIONS*/
 #define U64 unsigned long long int
 using Bitboard = U64;
-struct uint24 {
-	unsigned int data : 24;
-};
-using Move = uint24;
 
 constexpr int MAX_MOVES = 256;
 constexpr int MAX_PLY = 246;
@@ -59,7 +55,7 @@ enum PieceType {
 enum Piece {
 	WP, WN, WB, WR, WQ, WK,
 	BP, BN, BB, BR, BQ, BK,
-	NO_PIECE
+	BLANK_PIECE, NO_PIECE
 };
 
 
@@ -87,6 +83,61 @@ constexpr Square operator-(Square s, int d) { return Square(int(s) - int(d)); }
 inline Square& operator+=(Square& s, int d) { return s = s + d; }
 inline Square& operator-=(Square& s, int d) { return s = s - d; }
 
+typedef struct
+{
+	int moves[256];
+	int count;
+
+} Moves_list;
+
+
+static constexpr encode_move(int source, int target, Piece piece, int promotion, int capture, int twosquarepawn, int enpas, int castling)
+{
+	return ( (source) | (target << 6) | (piece << 12) | (promotion << 16) | (capture << 20) | (twosquarepawn<<21) | (enpas << 22) | (castling << 23) );
+}
+
+static constexpr get_move_from(int move)
+{
+	return (move & 0x3f);
+}
+
+static constexpr get_move_to(int move)
+{
+	return ((move & 0xfc0) >> 6);
+}
+
+static constexpr get_move_piece(int move)
+{
+	return ((move & 0xf000) >> 12);
+}
+
+static constexpr get_move_promotion(int move)
+{
+	return ((move & 0xf0000) >> 16);
+}
+
+static constexpr get_move_capture(int move)
+{
+	return ((move & 0x100000) >> 20);
+}
+
+static constexpr get_move_double(int move)
+{
+	return ((move & 0x200000) >> 21);
+}
+
+static constexpr get_move_enpas(int move)
+{
+	return ((move & 0x400000) >> 22);
+}
+
+static constexpr get_move_castle(int move)
+{
+	return ((move & 0x800000) >> 23);
+}
+
+
 
 
 #endif
+

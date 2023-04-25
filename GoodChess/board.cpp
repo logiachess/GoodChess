@@ -21,11 +21,10 @@ const char* sq_to_coord[64] =
 
 std::map<char, int> char_pieces = {
 	{'P', WP}, {'N', WN}, {'B', WB}, {'R', WR}, {'Q', WQ}, {'K', WK}, {'p', BP},
-	{'n', BN}, {'b', BB}, {'r', BR}, {'q', BQ}, {'k', BK}
+	{'n', BN}, {'b', BB}, {'r', BR}, {'q', BQ}, {'k', BK}, {'.', NO_SQUARE}
 };
 
-const char ascii_pieces[] = "PNBRQKpnbrqk.";
-
+const char ascii_pieces[] = "PNBRQKpnbrqk. ";
 
 int side = -1;
 int enpassant = NO_SQUARE;
@@ -44,7 +43,7 @@ void print_board()
 		{
 			int square = rank * 8 + file;
 			if (!file) printf(" %d  ", 8 - rank);
-			int piece = NO_PIECE;
+			int piece = BLANK_PIECE;
 
 			for (int bb_piece = WP; bb_piece <= BK; ++bb_piece)
 			{
@@ -181,6 +180,28 @@ void parse_fen(const std::string& command)
 }
 
 
+
+char* Pr_move(const int move)
+{
+	static char MvStr[6];
+	sprintf(MvStr, "%s%s%c", (sq_to_coord[get_move_from(move)]), (sq_to_coord[get_move_to(move)]), (ascii_pieces[get_move_promotion(move)]));
+	return MvStr; // Return pointer to array
+}
+
+
+void print_moves_list(const Moves_list* moves_list)
+{
+	printf("\n    move    piece   capture   double    enpass    castling\n\n");
+	for (int move_count = 0; move_count < moves_list->count; ++move_count)
+	{
+		int move = moves_list->moves[move_count];
+		printf("    %s   %c       %d         %d         %d         %d\n", Pr_move(move), ascii_pieces[get_move_piece(move)], get_move_capture(move),
+			get_move_double(move),
+			get_move_enpas(move),
+			get_move_castle(move));
+	}
+	printf("\n\n    Total number of moves: %d\n\n", moves_list->count);
+}
 
 
 

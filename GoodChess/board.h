@@ -28,7 +28,8 @@ extern Bitboard occupancies[3];
 /* FUNCTIONS */
 extern void print_board();
 extern void parse_fen(const std::string& command);
-
+extern char* Pr_move(int move);
+extern void print_moves_list(const Moves_list *moves_list);
 
 
 

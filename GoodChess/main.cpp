@@ -5,7 +5,7 @@
 #include "attacks.h"
 #include "magic.h"
 #include "movegen.h"
-
+	
 
 #define empty_board "8/8/8/8/8/8/8/8 w - - "
 #define start_position "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
@@ -18,15 +18,16 @@ int main()
 {
 	InitAll();
 
-	parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ");
+	parse_fen(tricky_position);
 	print_board();
-	int move = 0;
-	move = (move | 63) << 6;
-	print_bitboard(move);
 
+	Moves_list moves[1];
+	moves->count = 0;
 
+	generate_moves(moves);
 
-	generate_moves();
+	print_moves_list(moves);
+	//generate_moves();
 		
 
 	return 0;

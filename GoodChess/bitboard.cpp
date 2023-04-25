@@ -7,7 +7,7 @@ void init_bitboards()
 }
 
 
-void print_bitboard(U64 bitboard)
+void print_bitboard(Bitboard bitboard)
 {
 
 	printf("\n");

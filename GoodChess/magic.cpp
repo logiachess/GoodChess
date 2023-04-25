@@ -88,10 +88,10 @@ U64 generate_magic_number()
 U64 find_magic_number(int square, int bits, PieceType pt)
 {
 
-	U64 occupancies[4096];
-	U64 attacks[4096];
-	U64 used_attacks[4096];
-	U64 attack_mask = (pt == BISHOP) ? mask_bishop_occupancy(square) : mask_rook_occupancy(square);
+	Bitboard occupancies[4096];
+	Bitboard attacks[4096];
+	Bitboard used_attacks[4096];
+	Bitboard attack_mask = (pt == BISHOP) ? mask_bishop_occupancy(square) : mask_rook_occupancy(square);
 
 	int occupancy_indices = 1 << bits;
 

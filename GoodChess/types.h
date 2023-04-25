@@ -11,6 +11,10 @@
 /* DEFINITIONS*/
 #define U64 unsigned long long int
 using Bitboard = U64;
+struct uint24 {
+	unsigned int data : 24;
+};
+using Move = uint24;
 
 constexpr int MAX_MOVES = 256;
 constexpr int MAX_PLY = 246;

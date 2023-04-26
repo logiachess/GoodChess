@@ -8,7 +8,7 @@
 
 
 /* DEFINITIONS */
-long long nodes;
+long long p_nodes;
 
 
 /* MACROS */
@@ -19,7 +19,7 @@ static inline void perft_driver(int depth)
 {
 	if (depth == 0)
 	{
-		++nodes;
+		++p_nodes;
 		return;
 	}
 
@@ -40,7 +40,7 @@ static inline void perft_driver(int depth)
 
 static inline void perft_test(int depth)
 {
-    nodes = 0;
+    p_nodes = 0;
     printf("\n     Performance test\n\n");
     printf("\n     Move:    Nodes:\n");
 
@@ -65,13 +65,13 @@ static inline void perft_test(int depth)
             continue;
 
         // cummulative nodes
-        long long cummulative_nodes = nodes;
+        long long cummulative_nodes = p_nodes;
 
         // call perft driver recursively
         perft_driver(depth - 1);
 
         // old nodes
-        long old_nodes = nodes - cummulative_nodes;
+        long long old_nodes = p_nodes - cummulative_nodes;
 
         // take back
         take_board();
@@ -83,9 +83,9 @@ static inline void perft_test(int depth)
     long time = get_time_ms() - start;
     // print results
     printf("\n    Depth: %d ply\n", depth);
-    printf("    Nodes: %lld\n", nodes);
+    printf("    Nodes: %lld\n", p_nodes);
     printf("     Time: %ld ms\n", time);
-    printf("      Nps: %dMH/s\n\n", ( ( (nodes / time) / 1000) );
+    printf("      Nps: %dMH/s\n\n", (  (p_nodes / time) / 1000) );
 }
 
 

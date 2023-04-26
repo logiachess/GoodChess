@@ -36,7 +36,7 @@ Bitboard occupancies[3] = {};
 
 void print_board()
 {
-	printf("\n");
+	printf("\n\n");
 	for (int rank = 0; rank < 8; ++rank)
 	{
 		for (int file = 0; file < 8; ++file)

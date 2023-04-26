@@ -16,6 +16,7 @@ static constexpr int SIZEOF_OCCUPANCIES = 24;
 
 static constexpr int MAX_MOVES = 256;
 static constexpr int MAX_PLY = 246;
+static constexpr int MAX_DEPTH = 128;
 
 
 enum Square	// board squares
@@ -69,7 +70,22 @@ enum  Castlingrights
 	WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8
 };
 
+enum Value : int {
+	VALUE_ZERO = 0,
+	VALUE_DRAW = 0,
+	VALUE_MATE = 32000,
+	VALUE_INFINITE = 32001,
+	VALUE_NONE = 32002,
 
+	VALUE_MATE_IN_MAX_PLY = VALUE_MATE - MAX_PLY,
+	VALUE_MATED_IN_MAX_PLY = -VALUE_MATE_IN_MAX_PLY,
+
+	PawnValue = 100,
+	KnightValue = 325,
+	BishopValue = 325,
+	RookValue = 550, 
+	QueenValue = 1000
+};
 
 
 #define ENABLE_INCR_OPERATORS_ON(T)                                \
@@ -94,6 +110,25 @@ typedef struct
 	int count;
 
 } Moves_list;
+
+typedef struct
+{
+	int S_depth;
+	long long S_nodes;
+
+	int starttime;
+	int stoptime;
+	int stoptimeopt;
+
+	long long nodes;
+	int depthset;
+	int nodesset;
+	int timeset;
+	int movestogo;
+
+	int stopped;
+
+} Search_info;
 
 
 static constexpr int encode_move(int source, int target, Piece piece, int promotion, int capture, int twosquarepawn, int enpas, int castling)

@@ -1,12 +1,13 @@
 #include "uci.h"
 #include "movegen.h"
 #include "perft.h"
+#include "search.h"
 #include <iostream>
 
 
 enum Uci_commands
 {
-	U_go, U_ucinewgame, U_stop, U_perft, U_quit, U_position, U_uci, U_isready, U_display
+	U_unrecognized, U_go, U_ucinewgame, U_stop, U_perft, U_quit, U_position, U_uci, U_isready, U_display
 };
 
 static std::map<std::string, Uci_commands> map_Uci_commands =
@@ -107,6 +108,85 @@ static void ParsePosition(const std::string& command) {
 	}
 }
 
+static void ParseGo(const std::string& line)
+{
+	int search_depth = MAX_DEPTH, movetime = -1, movestogo = 25;
+	long long nodes = -1;
+	int time = -1; int inc = 0;
+	bool timeset = false;
+	bool movestogoset = false;
+
+	std::vector<std::string> tokens = split_command(line);
+
+	//loop over all the tokens and parse the commands
+	for (size_t i = 1; i < tokens.size(); ++i) {
+
+		if (tokens.at(1) == "infinite") {
+			continue;
+		}
+
+		if (tokens.at(i) == "winc" && side == WHITE) {
+			inc = std::stoi(tokens[i + 1]);
+			continue;
+		}
+
+		if (tokens.at(i) == "binc" && side == BLACK) {
+			inc = std::stoi(tokens[i + 1]);
+			continue;
+		}
+
+		if (tokens.at(i) == "wtime" && side == WHITE) {
+			time = std::stoi(tokens[i + 1]);
+			timeset = true;
+			continue;
+		}
+		if (tokens.at(i) == "btime" && side == BLACK) {
+			time = std::stoi(tokens[i + 1]);
+			timeset = true;
+			continue;
+		}
+
+		if (tokens.at(i) == "movestogo") {
+			movestogo = std::stoi(tokens[i + 1]);
+			movestogoset = true;
+			continue;
+		}
+
+		if (tokens.at(i) == "movetime") {
+			movetime = std::stoi(tokens[i + 1]);
+			time = movetime;
+			timeset = true;
+			continue;
+		}
+
+		if (tokens.at(i) == "depth") {
+			search_depth = std::stoi(tokens[i + 1]);
+			continue;
+		}
+
+		if (tokens.at(i) == "nodes") {
+			nodes = std::stoi(tokens[i + 1]);
+			continue;
+		}
+	}
+	Search_info info[1];
+	info->S_depth = search_depth;
+	info->starttime = get_time_ms();
+
+	// calculate stopttime.
+
+	std::cout << "info ";
+	std::cout << "time: " << time << " ";
+	std::cout << "start: " << info->starttime << " ";
+	std::cout << "stop: " << info->stoptime << " ";
+	std::cout << "depth: " << info->S_depth << " \n";
+
+	search_position(info);
+}
+
+
+
+
 
 void Uci_Loop()
 {
@@ -163,13 +243,12 @@ void Uci_Loop()
 			{
 				ParsePosition("position startpos");
 			}
-			// call parse go function
+			ParseGo(input);
 			break;
 		}
 
 		case (U_position):
 		{
-
 			// call parse position function
 			ParsePosition(input);
 			parsed_position = true;
@@ -210,7 +289,11 @@ void Uci_Loop()
 			printf("uciok");
 			break;
 		}
-
+		case (U_unrecognized):
+		{
+			printf("Unknown command\n");
+			break;
+		}
 		// End switch
 		}
 

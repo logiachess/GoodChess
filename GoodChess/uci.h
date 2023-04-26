@@ -9,7 +9,7 @@
 
 /* DEFINITIONS */
 #define start_position "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
-#define NAME "GoodChess 0.8"
+#define NAME "GoodChess 0.9"
 
 
 /* MACROS */

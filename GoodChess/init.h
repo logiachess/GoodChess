@@ -13,8 +13,7 @@
 
 
 /* FUNCTIONS */
-extern void InitAll();
-extern void init_leaper_attacks();
+void InitAll();
 extern void init_bitboards();
 extern void init_magic_numbers();
 

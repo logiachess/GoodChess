@@ -7,7 +7,8 @@
 #include "board.h"
 #include "bitboard.h"
 #include "magic.h"
-#include "attacks.h"	
+#include "attacks.h"
+#include <cstring>
 
 
 /* DEFINITIONS */
@@ -859,7 +860,7 @@ static inline int make_move(int move)
 	if (move == NULL_MOVE)
 	{
 		enpassant = NO_SQUARE;
-		return 0;
+		return 1;
 	}
 
 	copy_board();
@@ -950,6 +951,14 @@ static inline int make_move(int move)
 
 	castle &= castling_rights[from];
 	castle &= castling_rights[to];
+
+	// Manually change occupancies for each piece later.
+	memset(occupancies, 0ULL, SIZEOF_OCCUPANCIES);
+	for (int bb_piece = WP; bb_piece <= WK; ++bb_piece) { occupancies[WHITE] |= bitboards[bb_piece]; }
+
+	for (int bb_piece = BP; bb_piece <= BK; ++bb_piece) { occupancies[BLACK] |= bitboards[bb_piece]; }
+	occupancies[BOTH] = occupancies[WHITE] | occupancies[BLACK];
+
 
 	return 1;
 }

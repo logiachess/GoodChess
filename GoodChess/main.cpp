@@ -31,9 +31,11 @@ int main()
 		copy_board();
 		make_move(move);
 		print_board();
+		print_bitboard(occupancies[BOTH]);
 		getchar();
 		take_board();
 		print_board();
+		print_bitboard(occupancies[BOTH]);
 		getchar();
 	}
 		

@@ -19,12 +19,8 @@ int main()
 	parse_fen(start_position);
 	print_board();
 
-	int start = get_time_ms();
-	nodes = 0;
-	perft_driver(5);
+	perft_test(5);
 
-	printf("time taken to execute: %d ms\n", get_time_ms() - start);
-	printf("nodes: %ld\n", nodes);
 	return 0;
 }
 

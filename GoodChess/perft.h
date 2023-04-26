@@ -82,10 +82,10 @@ static inline void perft_test(int depth)
 
     long time = get_time_ms() - start;
     // print results
-    printf("\n    Depth: %dply\n", depth);
+    printf("\n    Depth: %d ply\n", depth);
     printf("    Nodes: %lld\n", nodes);
-    printf("     Time: %ldms\n", time);
-    printf("      Nps: %ldMH/s\n\n", nodes / time / 1000);
+    printf("     Time: %ld ms\n", time);
+    printf("      Nps: %dMH/s\n\n", ( ( (nodes / time) / 1000) );
 }
 
 

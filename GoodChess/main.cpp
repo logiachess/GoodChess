@@ -16,7 +16,7 @@ int main()
 {
 	InitAll();
 
-	parse_fen(start_position);
+	parse_fen(tricky_position);
 	print_board();
 
 	perft_test(5);

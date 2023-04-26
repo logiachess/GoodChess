@@ -80,10 +80,12 @@ static inline void perft_test(int depth)
         printf("     %s    %lld\n", Pr_move(move_list->moves[move_count]), old_nodes);
     }
 
+    long time = get_time_ms() - start;
     // print results
-    printf("\n    Depth: %d\n", depth);
+    printf("\n    Depth: %dply\n", depth);
     printf("    Nodes: %lld\n", nodes);
-    printf("     Time: %ld\n\n", get_time_ms() - start);
+    printf("     Time: %ldms\n", time);
+    printf("      Nps: %ldMH/s\n\n", nodes / time / 1000);
 }
 
 

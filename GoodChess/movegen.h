@@ -98,8 +98,6 @@ static inline int is_square_attacked(int square, int side)
 	return FALSE;
 }
 
-
-
 // static inline
 static inline void generate_moves(Moves_list *list)
 {
@@ -860,7 +858,8 @@ static inline int make_move(int move)
 	if (move == NULL_MOVE)
 	{
 		enpassant = NO_SQUARE;
-		return 1;
+		side ^= 1;
+		return TRUE;
 	}
 
 	copy_board();
@@ -926,7 +925,6 @@ static inline int make_move(int move)
 		enpassant = NO_SQUARE;
 		if (castling)
 		{
-			printf("no\n\n\n\n");
 			switch (to)
 			{
 			case (g1):
@@ -959,8 +957,15 @@ static inline int make_move(int move)
 	for (int bb_piece = BP; bb_piece <= BK; ++bb_piece) { occupancies[BLACK] |= bitboards[bb_piece]; }
 	occupancies[BOTH] = occupancies[WHITE] | occupancies[BLACK];
 
+	side ^= 1;
 
-	return 1;
+	if (is_square_attacked((side == WHITE) ? bitscan_forward(bitboards[BK]) : bitscan_forward(bitboards[WK]), side))
+	{
+		take_board();
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 

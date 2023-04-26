@@ -2,9 +2,7 @@
 #include "init.h"
 #include "bitboard.h"
 #include "board.h"
-#include "attacks.h"
-#include "magic.h"
-#include "movegen.h"
+#include "perft.h"
 	
 
 #define empty_board "8/8/8/8/8/8/8/8 b - - "
@@ -18,28 +16,15 @@ int main()
 {
 	InitAll();
 
-	parse_fen("r3k2r/p1ppqpb1/bn2pnp1/2pPN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq c6 0 1 ");
+	parse_fen(start_position);
 	print_board();
 
+	int start = get_time_ms();
+	nodes = 0;
+	perft_driver(5);
 
-	Moves_list move_list[1];
-	generate_moves(move_list);
-
-	for (int move_count = 0; move_count < move_list->count; ++move_count)
-	{
-		int move = move_list->moves[move_count];
-		copy_board();
-		make_move(move);
-		print_board();
-		print_bitboard(occupancies[BOTH]);
-		getchar();
-		take_board();
-		print_board();
-		print_bitboard(occupancies[BOTH]);
-		getchar();
-	}
-		
-
+	printf("time taken to execute: %d ms\n", get_time_ms() - start);
+	printf("nodes: %ld\n", nodes);
 	return 0;
 }
 

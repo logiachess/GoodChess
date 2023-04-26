@@ -349,7 +349,6 @@ static inline void generate_moves(Moves_list *list)
 						else
 						{
 							// one square ahead move
-							printf("pawn push: %s%s\n", sq_to_coord[from], sq_to_coord[to]);
 							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 							if ((h7 >= from && from >= a7) && !get_bit(occupancies[BOTH], to + 8))
 							{
@@ -903,6 +902,7 @@ static inline int make_move(int move)
 	{
 		pop_bit(bitboards[(side == WHITE) ? WP : BP], to);
 		set_bit(bitboards[promoted_piece], to);
+		enpassant = NO_SQUARE;
 	}
 	else if (enpass)
 	{
@@ -914,8 +914,8 @@ static inline int make_move(int move)
 		{
 			pop_bit(bitboards[WP], to - 8);
 		}
+		enpassant = NO_SQUARE;
 	}
-
 	else if (double_PP)
 	{
 		(side == WHITE) ? (enpassant = to + 8) : (enpassant = to - 8);

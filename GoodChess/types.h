@@ -16,6 +16,7 @@ static constexpr int SIZEOF_OCCUPANCIES = 24;
 
 static constexpr int MAX_MOVES = 256;
 static constexpr int MAX_PLY = 246;
+static constexpr int MAX_DEPTH = 128;
 
 
 enum Square	// board squares
@@ -94,6 +95,15 @@ typedef struct
 	int count;
 
 } Moves_list;
+
+typedef struct
+{
+	int depth;
+	int nodes;
+	int starttime;
+	int stopttime;
+
+} Search_info;
 
 
 static constexpr int encode_move(int source, int target, Piece piece, int promotion, int capture, int twosquarepawn, int enpas, int castling)

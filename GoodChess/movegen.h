@@ -11,6 +11,16 @@
 
 
 /* DEFINITIONS */
+const int castling_rights[64] = {
+	 7, 15, 15, 15,  3, 15, 15, 11,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	13, 15, 15, 15, 12, 15, 15, 14
+};
 
 
 /* MACROS */
@@ -179,7 +189,7 @@ static inline void generate_moves(Moves_list *list)
 						// check safety
 						if (!is_square_attacked(f1, BLACK) && !is_square_attacked(e1, BLACK))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 1));
+							add_move(list, encode_move(e1, g1, piece, NO_PIECE, 0, 0, 0, 1));
 						}
 
 					}
@@ -192,7 +202,7 @@ static inline void generate_moves(Moves_list *list)
 						// check safety
 						if (!is_square_attacked(d1, BLACK) && !is_square_attacked(e1, BLACK))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 1));
+							add_move(list, encode_move(e1, c1, piece, NO_PIECE, 0, 0, 0, 1));
 						}
 
 					}
@@ -392,7 +402,7 @@ static inline void generate_moves(Moves_list *list)
 						// check safety
 						if (!is_square_attacked(f8, WHITE) && !is_square_attacked(e8, WHITE))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 1));
+							add_move(list, encode_move(e8, g8, piece, NO_PIECE, 0, 0, 0, 1));
 						}
 
 					}
@@ -405,7 +415,7 @@ static inline void generate_moves(Moves_list *list)
 						// check safety
 						if (!is_square_attacked(d8, WHITE) && !is_square_attacked(e8, WHITE))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 1));
+							add_move(list, encode_move(e8, c8, piece, NO_PIECE, 0, 0, 0, 1));
 						}
 
 					}
@@ -844,30 +854,104 @@ static inline void generate_captures(Moves_list *list)
 	}
 }
 
-static inline int make_move(int move, int move_flag)
+static inline int make_move(int move)
 {
-	if (move_flag == ALL_MOVE)
+	if (move == NULL_MOVE)
 	{
-		Board_copy copy = copy_board();
+		enpassant = NO_SQUARE;
+		return 0;
+	}
 
-		int from = get_move_from(move);
-		int to = get_move_to(move);
-		int piece = get_move_piece(move);
-		int promoted = get_move_promotion(move);
-		int capture = get_move_capture(move);
-		int double_PP = get_move_double(move);
-		int enpass = get_move_enpas(move);
-		int castling = get_move_castle(move);
+	copy_board();
+	const int from = get_move_from(move);
+	const int to = get_move_to(move);
+	const int piece = get_move_piece(move);
+	const int promoted_piece = get_move_promotion(move);
+	const int capture = get_move_capture(move);
+	const int double_PP = get_move_double(move);
+	const int enpass = get_move_enpas(move);
+	const int castling = get_move_castle(move);
 
-		pop_bit(bitboards[piece], from);
-		set_bit(bitboards[piece], to);
+	pop_bit(bitboards[piece], from);
+	set_bit(bitboards[piece], to);
+
+
+	if (capture)
+	{
+		int start_piece, end_piece;
+		if (side == WHITE)
+		{
+			start_piece = BP;
+			end_piece = BK;
+		}
+		else
+		{
+			start_piece = WP;
+			end_piece = WK;
+		}
+
+		for (int bb_piece = start_piece; bb_piece <= end_piece; ++bb_piece)
+		{
+			if (get_bit(bitboards[bb_piece], to))
+			{
+				pop_bit(bitboards[bb_piece], to);
+				break;
+			}
+		}
+	}
+	if (promoted_piece != NO_PIECE)
+	{
+		pop_bit(bitboards[(side == WHITE) ? WP : BP], to);
+		set_bit(bitboards[promoted_piece], to);
+	}
+	else if (enpass)
+	{
+		if (side == WHITE)
+		{
+			pop_bit(bitboards[BP], to + 8);
+		}
+		else
+		{
+			pop_bit(bitboards[WP], to - 8);
+		}
+	}
+
+	else if (double_PP)
+	{
+		(side == WHITE) ? (enpassant = to + 8) : (enpassant = to - 8);
 	}
 	else
 	{
-		if (get_move_capture(move)) make_move(move, ALL_MOVE);
-		else return 0;
+		enpassant = NO_SQUARE;
+		if (castling)
+		{
+			printf("no\n\n\n\n");
+			switch (to)
+			{
+			case (g1):
+				pop_bit(bitboards[WR], h1);
+				set_bit(bitboards[WR], f1);
+				break;
+			case (c1):
+				pop_bit(bitboards[WR], a1);
+				set_bit(bitboards[WR], d1);
+				break;
+			case (g8):
+				pop_bit(bitboards[BR], h8);
+				set_bit(bitboards[BR], f8);
+				break;
+			case (c8):
+				pop_bit(bitboards[BR], a8);
+				set_bit(bitboards[BR], d8);
+				break;
+			}
+		}
 	}
-	return 0;
+
+	castle &= castling_rights[from];
+	castle &= castling_rights[to];
+
+	return 1;
 }
 
 

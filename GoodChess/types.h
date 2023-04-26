@@ -13,12 +13,6 @@
 using Bitboard = U64;
 static constexpr int SIZEOF_BITBOARD = 96;
 static constexpr int SIZEOF_OCCUPANCIES = 24;
-typedef struct
-{
-	Bitboard bitboards[12];
-	Bitboard occupancies[3];
-	int side_copy, enpassant_copy, castle_copy;
-}Board_copy;
 
 static constexpr int MAX_MOVES = 256;
 static constexpr int MAX_PLY = 246;

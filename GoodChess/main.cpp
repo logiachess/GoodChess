@@ -18,7 +18,7 @@ int main()
 {
 	InitAll();
 
-	parse_fen(tricky_position);
+	parse_fen("r3k2r/p1ppqpb1/bn2pnp1/2pPN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq c6 0 1 ");
 	print_board();
 
 
@@ -28,11 +28,11 @@ int main()
 	for (int move_count = 0; move_count < move_list->count; ++move_count)
 	{
 		int move = move_list->moves[move_count];
-		Board_copy copyy = copy_board();
-		make_move(move, ALL_MOVE);
+		copy_board();
+		make_move(move);
 		print_board();
 		getchar();
-		restore_board(copyy);
+		take_board();
 		print_board();
 		getchar();
 	}

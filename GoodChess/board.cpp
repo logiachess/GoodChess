@@ -62,7 +62,7 @@ void print_board()
 	printf("\n     a b c d e f g h \n\n");
 	printf("     Side:   %s\n", (!side) ? "white" : "black");
 	printf("     Enpas: %s\n", (enpassant != NO_SQUARE) ? sq_to_coord[enpassant] : "None");
-	printf("     Castl: %c%c%c%c\n\n", (castle & WK) ? 'K' : '-', (castle & WQ) ? 'Q' : '-', (castle & BK) ? 'k' : '-', (castle & BQ) ? 'q' : '-');
+	printf("     Castle: %c%c%c%c\n\n", (castle & WKCA) ? 'K' : '-', (castle & WQCA) ? 'Q' : '-', (castle & BKCA) ? 'k' : '-', (castle & BQCA) ? 'q' : '-');
 }
 
 

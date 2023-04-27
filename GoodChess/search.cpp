@@ -46,18 +46,12 @@ static void ClearForSearch(Search_info* info) {
 
 static inline bool InCheck()
 {
-	return is_square_attacked((side == BLACK) ? bitscan_forward(bitboards[BK]) : bitscan_forward(bitboards[WK]), side ^= 1);
+	return is_square_attacked((side == BLACK) ? bitscan_forward(bitboards[BK]) : bitscan_forward(bitboards[WK]), (side ^ 1) );
 }
 
 
 static inline int Quiescence(int alpha, int beta)
 {
-	bool Check = InCheck();
-
-	// Max Depth
-	if (ply > MAX_DEPTH - 1) {
-		return Check ? 0 : eval();
-	}
 
 	// mate distance
 	alpha = std::max(alpha, -VALUE_MATE + ply);
@@ -74,19 +68,18 @@ static inline int Quiescence(int alpha, int beta)
 	if (Score > alpha) {
 		alpha = Score;
 	}
-
 	Moves_list list[1];
 	generate_captures(list);
 
 	Score = -VALUE_INFINITE;
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
+		copy_board();
 		if (!make_move(list->moves[MoveNum]))
 		{
 			continue;
 		}
 
-		copy_board();
 
 		Score = -Quiescence(-beta, -alpha); // Recursively call function
 
@@ -109,11 +102,10 @@ static inline int Quiescence(int alpha, int beta)
 static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 {
 	bool Check = InCheck();
-
-	if (Check)
-	{
-		depth = std::max(1, depth + 1);
-	}
+	//if (Check)
+	//{
+	//	depth = std::max(1, depth + 1);
+	//}
 
 
 	if (depth <= 0)
@@ -121,28 +113,10 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 		++info->nodes;
 		return Quiescence(alpha, beta);
 	}
-	
-	if (ply > MAX_PLY - 1)
-	{
-		if (InCheck)
-		{
-			return 0;
-
-		}
-		else
-		{
-			return eval();
-		}
-	}
-
-	// mate distance
-	alpha = std::max(alpha, -VALUE_MATE + ply);
-	beta = std::min(beta, VALUE_MATE - ply - 1);
-	if (alpha >= beta)
-		return alpha;
 
 
 	int Score = -VALUE_INFINITE;
+
 
 	Moves_list list[1];
 	generate_moves(list);
@@ -151,12 +125,12 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
+		copy_board();
 		if (!make_move(list->moves[MoveNum]))
 		{
 			continue;
 		}
 
-		copy_board();
 		++legal_moves;
 
 		Score = -NegaMax(-beta, -alpha, depth - 1, info);
@@ -180,7 +154,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 	
 	if (legal_moves == 0)
 	{
-		if (InCheck)
+		if (Check)
 		{
 			return (-VALUE_MATE + ply); // Checkmate
 		}
@@ -217,8 +191,10 @@ static inline void iterative_deepen(Search_info *info)
 				" nps " << nps << " time " << time << " pv ";
 		}
 		else if (bestScore > VALUE_MATE_IN_MAX_PLY && bestScore < VALUE_MATE)
+		{
 			std::cout << "info score mate " << (VALUE_MATE - bestScore) / 2 + 1 << " depth " << currentDepth << " nodes " << info->nodes <<
-			" nps " << nps << " time " << time << " pv ";
+				" nps " << nps << " time " << time << " pv ";
+		}
 		else {
 			std::cout << "info score cp " << bestScore << " depth " << currentDepth << " nodes " << info->nodes <<
 				" nps " << nps << " time " << time << " pv ";

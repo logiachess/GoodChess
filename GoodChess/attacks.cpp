@@ -224,8 +224,6 @@ Bitboard rook_masks[64];
 
 void init_sliders_attacks(PieceType pt)
 {
-	U64 occupancy = 0ULL;
-	set_bit(occupancy, b6);
 
 	for (int square = 0; square < 64; ++square)
 	{

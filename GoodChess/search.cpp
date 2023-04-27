@@ -53,12 +53,6 @@ static inline bool InCheck()
 static inline int Quiescence(int alpha, int beta)
 {
 
-	// mate distance
-	alpha = std::max(alpha, -VALUE_MATE + ply);
-	beta = std::min(beta, VALUE_MATE - ply - 1);
-	if (alpha >= beta)
-		return alpha;
-
 
 	int Score = eval();
 	// Standing pat
@@ -114,12 +108,6 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 		return Quiescence(alpha, beta);
 	}
 
-	// mate distance
-	alpha = std::max(alpha, -VALUE_MATE + ply);
-	beta = std::min(beta, VALUE_MATE - ply - 1);
-	if (alpha >= beta)
-		return alpha;
-
 
 	int Score = -VALUE_INFINITE;
 
@@ -136,9 +124,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 		{
 			continue;
 		}
-
 		++legal_moves;
-
 		Score = -NegaMax(-beta, -alpha, depth - 1, info);
 
 		take_board();

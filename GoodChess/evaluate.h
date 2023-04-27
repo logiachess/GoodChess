@@ -94,13 +94,13 @@ static const int mirror_score[128] =
 };
 
 // MVV LVA [attacker][victim]
-static int mvv_lva[6][6] = {
-    105, 205, 305, 405, 505, 605,
-    104, 204, 304, 404, 504, 604,
-    103, 203, 303, 403, 503, 603,
-    102, 202, 302, 402, 502, 602,
-    101, 201, 301, 401, 501, 601,
-    100, 200, 300, 400, 500, 600
+static int mvv_lva[6][5] = {
+    105, 205, 305, 405, 505,
+    104, 204, 304, 404, 504,
+    103, 203, 303, 403, 503,
+    102, 202, 302, 402, 502,
+    101, 201, 301, 401, 501,
+    100, 200, 300, 400, 500
 };
 
 
@@ -113,13 +113,13 @@ static inline int score_move(int move)
 {
     if (get_move_capture(move))
     {
-        const int Piece_type = get_move_pieceType(move);
+        const int Piece_type = get_move_piece(move) % 6;
         // pick up bitboard piece index ranges depending on side
         int start_piece, end_piece;
 
         // pick up side to move
-        if (side == WHITE) { start_piece = BP; end_piece = BQ; }
-        else { start_piece = WP;  end_piece = WQ; }
+        if (side == WHITE) { start_piece = BP; end_piece = BR; }
+        else { start_piece = WP;  end_piece = WR; }
 
         // loop over bitboards opposite to the current side to move
         for (int bb_piece = start_piece; bb_piece <= end_piece;)
@@ -135,8 +135,7 @@ static inline int score_move(int move)
         }
 
         // score move by MVV LVA lookup [source piece][target piece]
-        printf("\n%d, %d\n", Piece_type, start_piece);
-        return mvv_lva[Piece_type][start_piece];
+        return mvv_lva[Piece_type][start_piece % 6];
     }
     else
     {
@@ -154,11 +153,30 @@ static inline void print_move_scores(Moves_list* move_list)
     for (int count = 0; count < move_list->count; count++)
     {
         printf("     move: ");
-        printf("%s", Pr_move(move_list->moves[count]));
-        printf(" score: %d\n", score_move(move_list->moves[count]));
+        printf("%s", Pr_move(move_list->moves[count].move));
+        printf(" score: %d\n", score_move(move_list->moves[count].move));
     }
 }
 
+
+static inline int sort_moves(int moveNum, Moves_list * list)
+{
+    int temp;
+    int bestScore = -VALUE_INFINITE;
+    int bestNum = moveNum;
+
+    // Find best score
+    for (int index = moveNum; index < list->count; ++index) {
+        if (list->moves[index].score > bestScore) {
+            bestScore = list->moves[index].score;
+            bestNum = index;
+        }
+    }
+    // Reorder movelist
+    temp = list->moves[moveNum].move;
+    list->moves[moveNum].move = list->moves[bestNum].move;
+    list->moves[bestNum].move = temp;
+}
 
 
 static inline int evaluate_material()

@@ -106,7 +106,14 @@ inline Square& operator-=(Square& s, int d) { return s = s - d; }
 
 typedef struct
 {
-	int moves[256];
+	int move;
+	int score;
+} Move;
+
+
+typedef struct
+{
+	Move moves[256];
 	int count;
 
 } Moves_list;
@@ -155,11 +162,6 @@ static constexpr int get_move_to(int move)
 static constexpr int get_move_piece(int move)
 {
 	return ((move & 0xf000) >> 12);
-}
-
-static constexpr int get_move_pieceType(int move)
-{
-	return (((move & 0xf000) >> 12) % 6);
 }
 
 static constexpr int get_move_promotion(int move)

@@ -33,7 +33,7 @@ static int ParseMove(const std::string& move_string) {
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
-		int move = list->moves[MoveNum];
+		int move = list->moves[MoveNum].move;
 		if (from == get_move_from(move) && to == get_move_to(move))
 		{
 			const int promotion_piece = get_move_promotion(move);

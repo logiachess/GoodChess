@@ -30,9 +30,11 @@ const int castling_rights[64] = {
 /* FUNCTIONS */
 static inline void add_move(Moves_list* moves_list, int move)
 {
-	moves_list->moves[moves_list->count] = move;
+	moves_list->moves[moves_list->count].move = move;
 	++moves_list->count;
 }
+
+
 static inline Bitboard get_bishop_attacks(int square, Bitboard occupancy)
 {
 	occupancy &= bishop_masks[square];

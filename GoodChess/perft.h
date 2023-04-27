@@ -29,7 +29,7 @@ static inline void perft_driver(int depth)
 	for (int move_count = 0; move_count < list->count; ++move_count)
 	{
 		copy_board();
-		if (!make_move(list->moves[move_count]))
+		if (!make_move(list->moves[move_count].move))
 		{
 			continue;
 		}
@@ -60,7 +60,7 @@ static inline void perft_test(int depth)
         copy_board();
 
         // make move
-        if (!make_move(move_list->moves[move_count]))
+        if (!make_move(move_list->moves[move_count].move))
             // skip to the next move
             continue;
 
@@ -77,7 +77,7 @@ static inline void perft_test(int depth)
         take_board();
 
         // print move
-        printf("     %s    %lld\n", Pr_move(move_list->moves[move_count]), old_nodes);
+        printf("     %s    %lld\n", Pr_move(move_list->moves[move_count].move), old_nodes);
     }
 
     long time = get_time_ms() - start;

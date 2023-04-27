@@ -208,7 +208,7 @@ void print_moves_list(const Moves_list* moves_list)
 	printf("\n    move    piece   capture   double    enpass    castling\n\n");
 	for (int move_count = 0; move_count < moves_list->count; ++move_count)
 	{
-		int move = moves_list->moves[move_count];
+		int move = moves_list->moves[move_count].move;
 		printf("    %s   %c       %d         %d         %d         %d\n", Pr_move(move), ascii_pieces[get_move_piece(move)], get_move_capture(move),
 			get_move_double(move),
 			get_move_enpas(move),

@@ -151,43 +151,6 @@ const int rook_relevant_occupancy[64] = {
 };
 
 
-void init_leaper_attacks()
-{
-
-	//// loop 64 squares
-	//for (int square = 0; square < 64; ++square)
-	//{
-	//	// pawn attacks
-	//	pawn_attacks[WHITE][square] = mask_pawn_attacks(WHITE, square);
-	//	pawn_attacks[BLACK][square] = mask_pawn_attacks(BLACK, square);
-
-	//	// knight attacks
-	//	knight_attacks[square] = mask_knight_attacks(square);
-
-	//	// king attacks
-	//	king_attacks[square] = mask_king_attacks(square);
-	//}
-}
-
-
-//void init_slider_attacks()
-//{
-//
-//	// loop 64 squares
-//	for (int square = 0; square < 64; ++square)
-//	{
-//		// bishop attacks
-//		bishop_occupancy[square] = mask_bishop_occupancy(square);
-//		print_bitboard(bishop_occupancy[square]);
-//
-//		if (square % 4 == 3) printf("\n");
-//		// rook attacks
-//		//rook_occupancy[square] = mask_rook_occupancy(square);
-//		// queen attacks
-//	}
-//}
-
-
 
 
 void InitAll()

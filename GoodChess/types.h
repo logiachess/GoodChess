@@ -118,9 +118,9 @@ typedef struct
 
 	// time calculations
 
-	int depthset;
-	int nodesset;
-	int timeset;
+	bool depthset = false;
+	bool nodesset = false;
+	bool timeset = false;
 	int movestogo;
 
 	// end conditions

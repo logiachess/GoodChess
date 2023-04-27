@@ -135,7 +135,6 @@ static inline void iterative_deepen(Search_info *info)
 		}
 		std::cout << Pr_move(info->bestMove) << std::endl;
 	}
-
 	std::cout << "bestmove " << Pr_move(info->bestMove) << "\n";
 }
 

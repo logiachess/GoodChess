@@ -113,8 +113,8 @@ static void ParseGo(const std::string& line)
 	int search_depth = MAX_DEPTH, movetime = -1, movestogo = 25;
 	long long nodes = -1;
 	int time = -1; int inc = 0;
-	bool timeset = false;
 	bool movestogoset = false;
+	Search_info info[1];
 
 	std::vector<std::string> tokens = split_command(line);
 
@@ -137,12 +137,12 @@ static void ParseGo(const std::string& line)
 
 		if (tokens.at(i) == "wtime" && side == WHITE) {
 			time = std::stoi(tokens[i + 1]);
-			timeset = true;
+			info->timeset = true;
 			continue;
 		}
 		if (tokens.at(i) == "btime" && side == BLACK) {
 			time = std::stoi(tokens[i + 1]);
-			timeset = true;
+			info->timeset = true;
 			continue;
 		}
 
@@ -155,7 +155,7 @@ static void ParseGo(const std::string& line)
 		if (tokens.at(i) == "movetime") {
 			movetime = std::stoi(tokens[i + 1]);
 			time = movetime;
-			timeset = true;
+			info->timeset = true;
 			continue;
 		}
 
@@ -169,7 +169,6 @@ static void ParseGo(const std::string& line)
 			continue;
 		}
 	}
-	Search_info info[1];
 	info->starttime = get_time_ms();
 	info->S_depth = search_depth;
 

@@ -94,20 +94,13 @@ static const int mirror_score[128] =
 };
 
 // MVV LVA [attacker][victim]
-static int mvv_lva[12][12] = {
-    105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
-    104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
-    103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
-    102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
-    101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
-    100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600,
-
-    105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
-    104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
-    103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
-    102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
-    101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
-    100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
+static int mvv_lva[6][6] = {
+    105, 205, 305, 405, 505, 605,
+    104, 204, 304, 404, 504, 604,
+    103, 203, 303, 403, 503, 603,
+    102, 202, 302, 402, 502, 602,
+    101, 201, 301, 401, 501, 601,
+    100, 200, 300, 400, 500, 600
 };
 
 
@@ -120,12 +113,49 @@ static inline int score_move(int move)
 {
     if (get_move_capture(move))
     {
-        int capture_piece = 
-        return mvv_lva[get_move_pieceType(move)][];
+        const int Piece_type = get_move_pieceType(move);
+        // pick up bitboard piece index ranges depending on side
+        int start_piece, end_piece;
+
+        // pick up side to move
+        if (side == WHITE) { start_piece = BP; end_piece = BQ; }
+        else { start_piece = WP;  end_piece = WQ; }
+
+        // loop over bitboards opposite to the current side to move
+        for (int bb_piece = start_piece; bb_piece <= end_piece;)
+        {
+            ++bb_piece;
+            // if there's a piece on the target square
+            if (get_bit(bitboards[bb_piece], get_move_to(move)))
+            {
+                // remove it from corresponding bitboard
+                start_piece = bb_piece;
+                break;
+            }
+        }
+
+        // score move by MVV LVA lookup [source piece][target piece]
+        printf("\n%d, %d\n", Piece_type, start_piece);
+        return mvv_lva[Piece_type][start_piece];
     }
     else
     {
 
+    }
+    return 0;
+}
+
+// print move scores
+static inline void print_move_scores(Moves_list* move_list)
+{
+    printf("     Move scores:\n\n");
+
+    // loop over moves within a move list
+    for (int count = 0; count < move_list->count; count++)
+    {
+        printf("     move: ");
+        printf("%s", Pr_move(move_list->moves[count]));
+        printf(" score: %d\n", score_move(move_list->moves[count]));
     }
 }
 

@@ -871,8 +871,13 @@ static inline int make_move(int move)
 	const int enpass = get_move_enpas(move);
 	const int castling = get_move_castle(move);
 
+	const int opp_side = side ^ 1;
+	
+
 	pop_bit(bitboards[piece], from);
 	set_bit(bitboards[piece], to);
+	pop_bit(occupancies[side], from);
+	set_bit(occupancies[side], to);
 
 
 	if (capture)
@@ -894,6 +899,7 @@ static inline int make_move(int move)
 			if (get_bit(bitboards[bb_piece], to))
 			{
 				pop_bit(bitboards[bb_piece], to);
+				pop_bit(occupancies[opp_side], to);
 				break;
 			}
 		}
@@ -909,10 +915,12 @@ static inline int make_move(int move)
 		if (side == WHITE)
 		{
 			pop_bit(bitboards[BP], to + 8);
+			pop_bit(occupancies[BLACK], to + 8);
 		}
 		else
 		{
 			pop_bit(bitboards[WP], to - 8);
+			pop_bit(occupancies[WHITE], to - 8);
 		}
 		enpassant = NO_SQUARE;
 	}
@@ -929,19 +937,27 @@ static inline int make_move(int move)
 			{
 			case (g1):
 				pop_bit(bitboards[WR], h1);
+				pop_bit(occupancies[WHITE], h1);
 				set_bit(bitboards[WR], f1);
+				set_bit(occupancies[WHITE], f1);
 				break;
 			case (c1):
 				pop_bit(bitboards[WR], a1);
+				pop_bit(occupancies[WHITE], a1);
 				set_bit(bitboards[WR], d1);
+				set_bit(occupancies[WHITE], d1);
 				break;
 			case (g8):
 				pop_bit(bitboards[BR], h8);
+				pop_bit(occupancies[BLACK], h8);
 				set_bit(bitboards[BR], f8);
+				set_bit(occupancies[BLACK], f8);
 				break;
 			case (c8):
 				pop_bit(bitboards[BR], a8);
+				pop_bit(occupancies[BLACK], a8);
 				set_bit(bitboards[BR], d8);
+				set_bit(occupancies[BLACK], d8);
 				break;
 			}
 		}
@@ -950,11 +966,6 @@ static inline int make_move(int move)
 	castle &= castling_rights[from];
 	castle &= castling_rights[to];
 
-	// Manually change occupancies for each piece later.
-	memset(occupancies, 0ULL, SIZEOF_OCCUPANCIES);
-	for (int bb_piece = WP; bb_piece <= WK; ++bb_piece) { occupancies[WHITE] |= bitboards[bb_piece]; }
-
-	for (int bb_piece = BP; bb_piece <= BK; ++bb_piece) { occupancies[BLACK] |= bitboards[bb_piece]; }
 	occupancies[BOTH] = occupancies[WHITE] | occupancies[BLACK];
 
 	side ^= 1;

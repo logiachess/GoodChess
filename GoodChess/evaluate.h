@@ -93,73 +93,13 @@ static const int mirror_score[128] =
     a8, b8, c8, d8, e8, f8, g8, h8
 };
 
-// MVV LVA [attacker][victim]
-static int mvv_lva[6][5] = {
-    105, 205, 305, 405, 505,
-    104, 204, 304, 404, 504,
-    103, 203, 303, 403, 503,
-    102, 202, 302, 402, 502,
-    101, 201, 301, 401, 501,
-    100, 200, 300, 400, 500
-};
-
 
 
 /* MACROS */
 
 
 /* FUNCTIONS */
-static inline int score_move(int move)
-{
-    if (get_move_capture(move))
-    {
-        const int Piece_type = get_move_piece(move) % 6;
-        // pick up bitboard piece index ranges depending on side
-        int start_piece, end_piece;
-
-        // pick up side to move
-        if (side == WHITE) { start_piece = BP; end_piece = BR; }
-        else { start_piece = WP;  end_piece = WR; }
-
-        // loop over bitboards opposite to the current side to move
-        for (int bb_piece = start_piece; bb_piece <= end_piece;)
-        {
-            ++bb_piece;
-            // if there's a piece on the target square
-            if (get_bit(bitboards[bb_piece], get_move_to(move)))
-            {
-                // remove it from corresponding bitboard
-                start_piece = bb_piece;
-                break;
-            }
-        }
-
-        // score move by MVV LVA lookup [source piece][target piece]
-        return mvv_lva[Piece_type][start_piece % 6];
-    }
-    else
-    {
-
-    }
-    return 0;
-}
-
-// print move scores
-static inline void print_move_scores(Moves_list* move_list)
-{
-    printf("     Move scores:\n\n");
-
-    // loop over moves within a move list
-    for (int count = 0; count < move_list->count; count++)
-    {
-        printf("     move: ");
-        printf("%s", Pr_move(move_list->moves[count].move));
-        printf(" score: %d\n", score_move(move_list->moves[count].move));
-    }
-}
-
-
-static inline int sort_moves(int moveNum, Moves_list * list)
+static inline void sort_moves(int moveNum, Moves_list * list)
 {
     int temp;
     int bestScore = -VALUE_INFINITE;

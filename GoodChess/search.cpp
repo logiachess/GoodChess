@@ -68,6 +68,7 @@ static inline int Quiescence(int alpha, int beta)
 	Score = -VALUE_INFINITE;
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
+		sort_moves(MoveNum, list);
 		copy_board();
 		if (!make_move(list->moves[MoveNum].move))
 		{
@@ -119,6 +120,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
+		sort_moves(MoveNum, list);
 		copy_board();
 		if (!make_move(list->moves[MoveNum].move))
 		{

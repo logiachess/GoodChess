@@ -210,12 +210,7 @@ static void ParseGo(const std::string& line)
 	std::cout << "stop: " << info->stoptime << " ";
 	std::cout << "depth: " << info->S_depth << " \n";
 
-	Moves_list list[1];
-	generate_moves(list);
-
-	print_move_scores(list);
-
-	//search_position(info);
+	search_position(info);
 }
 
 

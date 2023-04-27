@@ -23,14 +23,54 @@ const int castling_rights[64] = {
 	13, 15, 15, 15, 12, 15, 15, 14
 };
 
+// MVV LVA [attacker][victim]
+static int mvv_lva[6][5] = {
+	105, 205, 305, 405, 505,
+	104, 204, 304, 404, 504,
+	103, 203, 303, 403, 503,
+	102, 202, 302, 402, 502,
+	101, 201, 301, 401, 501,
+	100, 200, 300, 400, 500
+};
+
 
 /* MACROS */
 
 
 /* FUNCTIONS */
-static inline void add_move(Moves_list* moves_list, int move)
+static inline int captured_piecetype(int move)
+{
+	int start_piece, end_piece;
+
+	// pick up side to move
+	if (side == WHITE) { start_piece = BP; end_piece = BR; }
+	else { start_piece = WP;  end_piece = WR; }
+
+	// loop over bitboards opposite to the current side to move
+	for (int bb_piece = start_piece; bb_piece <= end_piece;)
+	{
+		++bb_piece;
+		// if there's a piece on the target square
+		if (get_bit(bitboards[bb_piece], get_move_to(move)))
+		{
+			// remove it from corresponding bitboard
+			start_piece = bb_piece;
+			break;
+		}
+	}
+	return start_piece % 6;
+}
+static inline void add_quiet(Moves_list* moves_list, int move)
 {
 	moves_list->moves[moves_list->count].move = move;
+	moves_list->moves[moves_list->count].score = 0;
+	++moves_list->count;
+}
+
+static inline void add_capture(Moves_list* moves_list, int move)
+{
+	moves_list->moves[moves_list->count].move = move;
+	moves_list->moves[moves_list->count].score = mvv_lva[get_move_piece(move) % 6][captured_piecetype(move) % 6];
 	++moves_list->count;
 }
 
@@ -131,17 +171,17 @@ static inline void generate_moves(Moves_list *list)
 					{
 						if (h7 >= from && from >= a7)
 						{
-							add_move(list, encode_move(from, to, piece, WQ, 0, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, WR, 0, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, WB, 0, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, WN, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, WQ, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, WR, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, WB, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, WN, 0, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 							if ((h2 >= from && from >= a2) && !get_bit(occupancies[BOTH], to - 8))
 							{
-								add_move(list, encode_move(from, to-8, piece, NO_PIECE, 0, 1, 0, 0));
+								add_quiet(list, encode_move(from, to-8, piece, NO_PIECE, 0, 1, 0, 0));
 							}
 						}
 					}
@@ -154,15 +194,15 @@ static inline void generate_moves(Moves_list *list)
 						if (h7 >= from && from >= a7)
 						{
 							// 4 promotions
-							add_move(list, encode_move(from, to, piece, WQ, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, WR, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, WB, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, WN, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, WQ, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, WR, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, WB, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, WN, 1, 0, 0, 0));
 						}
 						else
 						{
 							// one square ahead move
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						pop_bit(attacks, to);
 					}
@@ -174,7 +214,7 @@ static inline void generate_moves(Moves_list *list)
 						if (enpassant_attacks)
 						{
 							to = bitscan_forward(enpassant_attacks);
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 1, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 1, 0));
 						}
 					}
 
@@ -190,7 +230,7 @@ static inline void generate_moves(Moves_list *list)
 						// check safety
 						if (!is_square_attacked(f1, BLACK) && !is_square_attacked(e1, BLACK))
 						{
-							add_move(list, encode_move(e1, g1, piece, NO_PIECE, 0, 0, 0, 1));
+							add_quiet(list, encode_move(e1, g1, piece, NO_PIECE, 0, 0, 0, 1));
 						}
 
 					}
@@ -203,7 +243,7 @@ static inline void generate_moves(Moves_list *list)
 						// check safety
 						if (!is_square_attacked(d1, BLACK) && !is_square_attacked(e1, BLACK))
 						{
-							add_move(list, encode_move(e1, c1, piece, NO_PIECE, 0, 0, 0, 1));
+							add_quiet(list, encode_move(e1, c1, piece, NO_PIECE, 0, 0, 0, 1));
 						}
 
 					}
@@ -218,11 +258,11 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[BLACK], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -242,11 +282,11 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[BLACK], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -266,11 +306,11 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[BLACK], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -290,11 +330,11 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[BLACK], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -314,11 +354,11 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[BLACK], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -343,18 +383,18 @@ static inline void generate_moves(Moves_list *list)
 					{
 						if (h2 >= from && from >= a2)
 						{
-							add_move(list, encode_move(from, to, piece, BQ, 0, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, BR, 0, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, BB, 0, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, BN, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, BQ, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, BR, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, BB, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, BN, 0, 0, 0, 0));
 						}
 						else
 						{
 							// one square ahead move
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 							if ((h7 >= from && from >= a7) && !get_bit(occupancies[BOTH], to + 8))
 							{
-								add_move(list, encode_move(from, to + 8, piece, NO_PIECE, 0, 1, 0, 0));
+								add_quiet(list, encode_move(from, to + 8, piece, NO_PIECE, 0, 1, 0, 0));
 							}
 						}
 					}
@@ -366,15 +406,15 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (h2 >= from && from >= a2)
 						{
-							add_move(list, encode_move(from, to, piece, BQ, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, BR, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, BB, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, BN, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, BQ, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, BR, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, BB, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, BN, 1, 0, 0, 0));
 						}
 						else
 						{
 							// one square ahead move
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						pop_bit(attacks, to);
 					}
@@ -386,7 +426,7 @@ static inline void generate_moves(Moves_list *list)
 						if (enpassant_attacks)
 						{
 							to = bitscan_forward(enpassant_attacks);
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 1, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 1, 0));
 						}
 					}
 
@@ -402,7 +442,7 @@ static inline void generate_moves(Moves_list *list)
 						// check safety
 						if (!is_square_attacked(f8, WHITE) && !is_square_attacked(e8, WHITE))
 						{
-							add_move(list, encode_move(e8, g8, piece, NO_PIECE, 0, 0, 0, 1));
+							add_quiet(list, encode_move(e8, g8, piece, NO_PIECE, 0, 0, 0, 1));
 						}
 
 					}
@@ -415,7 +455,7 @@ static inline void generate_moves(Moves_list *list)
 						// check safety
 						if (!is_square_attacked(d8, WHITE) && !is_square_attacked(e8, WHITE))
 						{
-							add_move(list, encode_move(e8, c8, piece, NO_PIECE, 0, 0, 0, 1));
+							add_quiet(list, encode_move(e8, c8, piece, NO_PIECE, 0, 0, 0, 1));
 						}
 
 					}
@@ -430,11 +470,11 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[WHITE], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -454,11 +494,11 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[WHITE], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -477,11 +517,11 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[WHITE], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -501,11 +541,11 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[WHITE], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -525,11 +565,11 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[WHITE], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						else
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -577,15 +617,15 @@ static inline void generate_captures(Moves_list *list)
 						if (h7 >= from && from >= a7)
 						{
 							// 4 promotions
-							add_move(list, encode_move(from, to, piece, WQ, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, WR, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, WB, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, WN, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, WQ, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, WR, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, WB, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, WN, 1, 0, 0, 0));
 						}
 						else
 						{
 							// one square ahead move
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						pop_bit(attacks, to);
 					}
@@ -597,7 +637,7 @@ static inline void generate_captures(Moves_list *list)
 						if (enpassant_attacks)
 						{
 							to = bitscan_forward(enpassant_attacks);
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 1, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 1, 0));
 						}
 					}
 
@@ -615,7 +655,7 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[BLACK], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -635,7 +675,7 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[BLACK], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -655,7 +695,7 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[BLACK], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -675,7 +715,7 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[BLACK], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -695,7 +735,7 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[BLACK], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -723,15 +763,15 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (h2 >= from && from >= a2)
 						{
-							add_move(list, encode_move(from, to, piece, BQ, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, BR, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, BB, 1, 0, 0, 0));
-							add_move(list, encode_move(from, to, piece, BN, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, BQ, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, BR, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, BB, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, BN, 1, 0, 0, 0));
 						}
 						else
 						{
 							// one square ahead move
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 						pop_bit(attacks, to);
 					}
@@ -743,7 +783,7 @@ static inline void generate_captures(Moves_list *list)
 						if (enpassant_attacks)
 						{
 							to = bitscan_forward(enpassant_attacks);
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 1, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 1, 0));
 						}
 					}
 
@@ -761,7 +801,11 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[WHITE], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+						}
+						else
+						{
+							add_quiet(list, encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -781,7 +825,7 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[WHITE], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -800,7 +844,7 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[WHITE], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -820,7 +864,7 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[WHITE], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -840,7 +884,7 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (get_bit(occupancies[WHITE], to))
 						{
-							add_move(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
+							add_capture(list, encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0));
 						}
 
 						pop_bit(attacks, to);
@@ -853,6 +897,8 @@ static inline void generate_captures(Moves_list *list)
 		}
 	}
 }
+
+
 
 static inline int make_move(int move)
 {

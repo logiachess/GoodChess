@@ -128,6 +128,8 @@ typedef struct
 
 	int stopped;
 
+	int bestMove;
+
 } Search_info;
 
 

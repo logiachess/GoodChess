@@ -286,7 +286,7 @@ void Uci_Loop()
 		{
 			printf("id name %s\n", NAME);
 			printf("id author Nathanael Lu\n");
-			printf("uciok");
+			printf("uciok\n");
 			break;
 		}
 		case (U_unrecognized):

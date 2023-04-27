@@ -170,10 +170,41 @@ static void ParseGo(const std::string& line)
 		}
 	}
 	Search_info info[1];
-	info->S_depth = search_depth;
 	info->starttime = get_time_ms();
 
-	// calculate stopttime.
+	static const int safety_overhead = 50;
+
+	// calculate
+	//calculate time allocation for the move
+	if (info->timeset and movetime != -1) {
+		time -= safety_overhead;
+		info->stoptime = info->starttime + time + inc;
+		info->optstoptime = info->starttime + time + inc;
+	}
+	else if (info->timeset && movestogoset)
+	{
+		time -= safety_overhead;
+		int time_slot = time / info->movestogo;
+		int basetime = (time_slot);
+		info->stoptime = info->starttime + basetime;
+		info->optstoptime = info->starttime + basetime;
+	}
+	else if (info->timeset)
+	{
+		time -= safety_overhead;
+		int time_slot = time / movestogo + inc / 2;
+		int basetime = (time_slot);
+		//optime is the time we use to stop if we just cleared a depth
+		int optime = basetime * 0.6;
+		//maxtime is the absolute maximum time we can spend on a search
+		int maxtime = std::min(time, basetime * 2);
+		info->stoptime = info->starttime + maxtime;
+		info->optstoptime = info->starttime + optime;
+	}
+
+	if (search_depth == -1) {
+		info->S_depth = MAX_DEPTH;
+	}
 
 	std::cout << "info ";
 	std::cout << "time: " << time << " ";

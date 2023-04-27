@@ -54,7 +54,7 @@ enum Rank : int {
 
 
 enum PieceType : int {
-	NO_PIECE_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
+	PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE_TYPE
 };
 
 
@@ -113,21 +113,26 @@ typedef struct
 
 typedef struct
 {
-	int S_depth;
-	long long S_nodes;
-
-	int starttime;
-	int stoptime;
-	int stoptimeopt;
-
 	long long nodes;
+	int ply;
+
+	// time calculations
+
 	int depthset;
 	int nodesset;
 	int timeset;
 	int movestogo;
 
+	// end conditions
+	int starttime;
+	int stoptime;
+	int stoptimeopt;
+	long long S_nodes;
+	int S_depth;
+
 	int stopped;
 
+	// placeholder
 	int bestMove;
 
 } Search_info;
@@ -151,6 +156,11 @@ static constexpr int get_move_to(int move)
 static constexpr int get_move_piece(int move)
 {
 	return ((move & 0xf000) >> 12);
+}
+
+static constexpr int get_move_pieceType(int move)
+{
+	return (((move & 0xf000) >> 12) % 6);
 }
 
 static constexpr int get_move_promotion(int move)

@@ -56,7 +56,7 @@ static const int bishop_score[64] =
 // rook positional score
 static const int rook_score[64] =
 {
-    50,  50,  50,  50,  50,  50,  50,  50,
+    30,  30,  30,  30,  30,  30,  30,  30,
     50,  50,  50,  50,  50,  50,  50,  50,
      0,   0,  10,  20,  20,  10,   0,   0,
      0,   0,  10,  20,  20,  10,   0,   0,
@@ -109,9 +109,82 @@ static inline int evaluate_material()
 
 	return (side == WHITE) ? score : -score;
 };
+
+
+// position evaluation
+static inline int evaluate_position()
+{
+    int score = 0;
+    Bitboard bitboard;
+    int piece, square;
+
+    for (int bb_piece = WP; bb_piece <= WK; ++bb_piece)
+    {
+        // init piece bitboard copy
+        bitboard = bitboards[bb_piece];
+        // loop over pieces within a bitboard
+        while (bitboard)
+        {
+            // init piece
+            piece = bb_piece;
+
+            // init square
+            square = bitscan_forward(bitboard);
+            score += material_score[piece];
+            switch (piece)
+            {
+                // evaluate white pieces
+            case WP: score += pawn_score[square]; break;
+            case WN: score += knight_score[square]; break;
+            case WB: score += bishop_score[square]; break;
+            case WR: score += rook_score[square]; break;
+            case WK: score += king_score[square]; break;
+            }
+
+
+            // pop ls1b
+            pop_bit(bitboard, square);
+        }
+    }
+
+    for (int bb_piece = BP; bb_piece <= BK; ++bb_piece)
+    {
+        // init piece bitboard copy
+        bitboard = bitboards[bb_piece];
+        // loop over pieces within a bitboard
+        while (bitboard)
+        {
+            // init piece
+            piece = bb_piece;
+
+            // init square
+            square = bitscan_forward(bitboard);
+            score += material_score[piece];
+            switch (piece)
+            {
+
+                // evaluate black pieces
+            case BP: score -= pawn_score[mirror_score[square]]; break;
+            case BN: score -= knight_score[mirror_score[square]]; break;
+            case BB: score -= bishop_score[mirror_score[square]]; break;
+            case BR: score -= rook_score[mirror_score[square]]; break;
+            case BK: score -= king_score[mirror_score[square]]; break;
+            }
+
+
+            // pop ls1b
+            pop_bit(bitboard, square);
+        }
+    }
+
+    // return final evaluation based on side
+    return (side == WHITE) ? score : -score;
+}
+
+
 inline int eval()
 {
-	return evaluate_material();
+	return evaluate_position();
 }
 
 

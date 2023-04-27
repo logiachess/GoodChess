@@ -96,10 +96,10 @@ static inline int Quiescence(int alpha, int beta)
 static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 {
 	bool Check = InCheck();
-	if (Check)
-	{
-		depth = std::max(1, depth + 1);
-	}
+	//if (Check)
+	//{
+	//	depth = std::max(1, depth + 1);
+	//}
 
 
 	if (depth <= 0)

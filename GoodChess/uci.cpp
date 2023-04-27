@@ -171,6 +171,7 @@ static void ParseGo(const std::string& line)
 	}
 	Search_info info[1];
 	info->starttime = get_time_ms();
+	info->S_depth = search_depth;
 
 	static const int safety_overhead = 50;
 
@@ -200,10 +201,6 @@ static void ParseGo(const std::string& line)
 		int maxtime = std::min(time, basetime * 2);
 		info->stoptime = info->starttime + maxtime;
 		info->optstoptime = info->starttime + optime;
-	}
-
-	if (search_depth == -1) {
-		info->S_depth = MAX_DEPTH;
 	}
 
 	std::cout << "info ";

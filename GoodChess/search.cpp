@@ -6,6 +6,43 @@
 #include <iostream>
 
 
+// Clear search information for a new search
+static void ClearForSearch(Search_info* info) {
+
+	//// Define indices
+	//int index = 0;
+	//int index2 = 0;
+
+	//// Clear search hisotry
+	//for (index = 0; index < 13; ++index) {
+	//	for (index2 = 0; index2 < BRD_SQ_NUM; ++index2) {
+	//		pos->searchHistory[index][index2] = 0;
+	//	}
+	//}
+
+	//// Clear killer moves
+	//for (index = 0; index < 2; ++index) {
+	//	for (index2 = 0; index2 < MAXDEPTH; ++index2) {
+	//		pos->searchKillers[index][index2] = 0;
+	//	}
+	//}
+
+	////table->overWrite = 0;
+	//table->hit = 0;
+	//table->cut = 0;
+	//++table->currentAge; // Incremement current hash table age
+	ply = 0; // Set search ply to 0
+
+	// Reset search info
+	info->stopped = 0;
+	info->nodes = 0;
+	//info->fh = 0;
+	//info->fhf = 0;
+
+}
+
+
+
 static inline bool InCheck()
 {
 	return is_square_attacked((side == BLACK) ? bitscan_forward(bitboards[BK]) : bitscan_forward(bitboards[WK]), side ^= 1);
@@ -27,7 +64,8 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, int
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
-		copy_board(); // How to fix
+		copy_board();
+
 		if (!make_move(list->moves[MoveNum]))
 		{
 			continue;
@@ -35,6 +73,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, int
 		++legal_moves;
 
 		Score = -NegaMax(-beta, -alpha, depth - 1, info, c);
+
 		take_board();
 
 		if (Score >= beta)
@@ -45,7 +84,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, int
 		if (Score > alpha)
 		{
 			alpha = Score;
-			if (depth == c) {
+			if (ply == 0) {
 				info->bestMove = list->moves[MoveNum];
 			}
 		}

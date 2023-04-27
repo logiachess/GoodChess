@@ -114,7 +114,6 @@ typedef struct
 typedef struct
 {
 	long long nodes;
-	int ply;
 
 	// time calculations
 

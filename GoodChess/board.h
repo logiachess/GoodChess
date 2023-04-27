@@ -20,6 +20,9 @@ extern int enpassant;
 extern int castle;
 extern Bitboard bitboards[12];
 extern Bitboard occupancies[3];
+extern int hisPly;
+extern int ply;
+extern int fiftymove;
 
 
 /* MACROS */
@@ -35,6 +38,7 @@ extern Bitboard occupancies[3];
     memcpy(bitboards, bitboards_copy, 96);                                \
     memcpy(occupancies, occupancies_copy, 24);                            \
     side = side_copy, enpassant = enpassant_copy, castle = castle_copy;    \
+    --ply; --hisPly; --fiftymove;                                           \
 
 
 /* FUNCTIONS */

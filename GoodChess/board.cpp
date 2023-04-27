@@ -31,6 +31,9 @@ int enpassant = NO_SQUARE;
 int castle;
 Bitboard bitboards[12] = {};
 Bitboard occupancies[3] = {};
+int hisPly; // total game
+int ply; // search
+int fiftymove;
 
 
 
@@ -162,6 +165,18 @@ void parse_fen(const std::string& command)
 	else
 		enpassant = NO_SQUARE;
 
+	//Read fifty moves counter
+	if (!fifty_move.empty()) {
+		fiftymove = std::stoi(fifty_move);
+	}
+	//Read Hisply moves counter
+	if (!HisPly.empty()) {
+
+		hisPly = std::stoi(HisPly);
+
+	}
+
+
 	// loop over white pieces bitboards
 	for (int piece = WP; piece <= WK; ++piece)
 		// populate white occupancy bitboard
@@ -172,11 +187,10 @@ void parse_fen(const std::string& command)
 		// populate white occupancy bitboard
 		occupancies[BLACK] |= bitboards[piece];
 
+
 	// init all occupancies
 	occupancies[BOTH] |= occupancies[WHITE];
 	occupancies[BOTH] |= occupancies[BLACK];
-
-
 }
 
 

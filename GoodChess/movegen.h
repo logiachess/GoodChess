@@ -854,6 +854,10 @@ static inline void generate_captures(Moves_list *list)
 
 static inline int make_move(int move)
 {
+	++fiftymove;
+	++ply;
+	++hisPly;
+
 	if (move == NULL_MOVE)
 	{
 		enpassant = NO_SQUARE;
@@ -882,6 +886,7 @@ static inline int make_move(int move)
 
 	if (capture)
 	{
+		fiftymove = 0;
 		int start_piece, end_piece;
 		if (side == WHITE)
 		{
@@ -963,12 +968,18 @@ static inline int make_move(int move)
 		}
 	}
 
+	if (piece % 6 == PAWN)
+	{
+		fiftymove = 0;
+	}
+
 	castle &= castling_rights[from];
 	castle &= castling_rights[to];
 
 	occupancies[BOTH] = occupancies[WHITE] | occupancies[BLACK];
 
 	side ^= 1;
+
 
 	if (is_square_attacked((side == WHITE) ? bitscan_forward(bitboards[BK]) : bitscan_forward(bitboards[WK]), side))
 	{

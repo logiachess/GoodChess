@@ -4,6 +4,7 @@
 #include "misc.h"
 #include "board.h"
 #include <iostream>
+#include <algorithm>
 
 
 // Clear search information for a new search
@@ -49,12 +50,98 @@ static inline bool InCheck()
 }
 
 
+static inline int Quiescence(int alpha, int beta)
+{
+	bool Check = InCheck();
+
+	// Max Depth
+	if (ply > MAX_DEPTH - 1) {
+		return Check ? 0 : eval();
+	}
+
+	// mate distance
+	alpha = std::max(alpha, -VALUE_MATE + ply);
+	beta = std::min(beta, VALUE_MATE - ply - 1);
+	if (alpha >= beta)
+		return alpha;
+
+
+	int Score = eval();
+	// Standing pat
+	if (Score >= beta) {
+		return beta;
+	}
+	if (Score > alpha) {
+		alpha = Score;
+	}
+
+	Moves_list list[1];
+	generate_captures(list);
+
+	Score = -VALUE_INFINITE;
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
+	{
+		if (!make_move(list->moves[MoveNum]))
+		{
+			continue;
+		}
+
+		copy_board();
+
+		Score = -Quiescence(-beta, -alpha); // Recursively call function
+
+		take_board();
+		if (Score > alpha)
+		{
+			if (Score >= beta)
+			{
+				return beta;
+			}
+			alpha = Score;
+		}
+	}
+
+	return alpha;
+}
+
+
+
 static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 {
-	if (depth == 0) {
-		++info->nodes;
-		return eval();
+	bool Check = InCheck();
+
+	if (Check)
+	{
+		depth = std::max(1, depth + 1);
 	}
+
+
+	if (depth <= 0)
+	{
+		++info->nodes;
+		return Quiescence(alpha, beta);
+	}
+	
+	if (ply > MAX_PLY - 1)
+	{
+		if (InCheck)
+		{
+			return 0;
+
+		}
+		else
+		{
+			return eval();
+		}
+	}
+
+	// mate distance
+	alpha = std::max(alpha, -VALUE_MATE + ply);
+	beta = std::min(beta, VALUE_MATE - ply - 1);
+	if (alpha >= beta)
+		return alpha;
+
+
 	int Score = -VALUE_INFINITE;
 
 	Moves_list list[1];
@@ -64,12 +151,12 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
-		copy_board();
-
 		if (!make_move(list->moves[MoveNum]))
 		{
 			continue;
 		}
+
+		copy_board();
 		++legal_moves;
 
 		Score = -NegaMax(-beta, -alpha, depth - 1, info);
@@ -84,7 +171,8 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 		if (Score > alpha)
 		{
 			alpha = Score;
-			if (ply == 0) {
+			if (ply == 0)
+			{
 				info->bestMove = list->moves[MoveNum];
 			}
 		}
@@ -92,10 +180,12 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 	
 	if (legal_moves == 0)
 	{
-		if (InCheck) {
+		if (InCheck)
+		{
 			return (-VALUE_MATE + ply); // Checkmate
 		}
-		else {
+		else
+		{
 			return VALUE_DRAW; // Stalemate
 		}
 	}

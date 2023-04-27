@@ -121,12 +121,12 @@ static inline void iterative_deepen(Search_info *info)
 		long time = get_time_ms() - info->starttime;
 		U64 nps = info->nodes / (time + !time) * 1000;
 
-		if (bestScore > -VALUE_MATE && bestScore < -ISMATE)
+		if (bestScore > -VALUE_MATE && bestScore < VALUE_MATED_IN_MAX_PLY)
 		{
 			std::cout << "info score mate " << -(bestScore + VALUE_MATE) / 2 << " depth " << currentDepth << " nodes " << info->nodes <<
 				" nps " << nps << " time " << time << " pv ";
 		}
-		else if (bestScore > ISMATE && bestScore < VALUE_MATE)
+		else if (bestScore > VALUE_MATE_IN_MAX_PLY && bestScore < VALUE_MATE)
 			std::cout << "info score mate " << (VALUE_MATE - bestScore) / 2 + 1 << " depth " << currentDepth << " nodes " << info->nodes <<
 			" nps " << nps << " time " << time << " pv ";
 		else {

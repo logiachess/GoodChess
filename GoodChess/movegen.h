@@ -88,7 +88,7 @@ static inline int is_square_attacked(int square, int side)
 		if ((get_rook_attacks(square, occupancies[BOTH])) & (bitboards[BR])) return TRUE;
 		if ((get_queen_attacks(square, occupancies[BOTH])) & (bitboards[BQ])) return TRUE;
 
-		if ((side == BLACK) && (pawn_attacks[WHITE][square] & bitboards[BP])) return TRUE;
+		if (pawn_attacks[WHITE][square] & bitboards[BP]) return TRUE;
 
 		if (knight_attacks[square] & (bitboards[BN])) return TRUE;
 		if ((get_bishop_attacks(square, occupancies[BOTH])) & (bitboards[BB])) return TRUE;

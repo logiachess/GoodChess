@@ -49,7 +49,7 @@ static inline bool InCheck()
 }
 
 
-static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, int c)
+static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 {
 	if (depth == 0) {
 		++info->nodes;
@@ -72,7 +72,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, int
 		}
 		++legal_moves;
 
-		Score = -NegaMax(-beta, -alpha, depth - 1, info, c);
+		Score = -NegaMax(-beta, -alpha, depth - 1, info);
 
 		take_board();
 
@@ -93,7 +93,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, int
 	if (legal_moves == 0)
 	{
 		if (InCheck) {
-			return (-VALUE_MATE); // Checkmate
+			return (-VALUE_MATE + ply); // Checkmate
 		}
 		else {
 			return VALUE_DRAW; // Stalemate
@@ -114,16 +114,28 @@ static inline void iterative_deepen(Search_info *info)
 		info->nodes = 0;
 
 
-		bestScore = NegaMax(-VALUE_INFINITE, VALUE_INFINITE, currentDepth, info, currentDepth);
+		bestScore = NegaMax(-VALUE_INFINITE, VALUE_INFINITE, currentDepth, info);
 
 
 
 		long time = get_time_ms() - info->starttime;
 		U64 nps = info->nodes / (time + !time) * 1000;
 
-		std::cout << "info score cp " << bestScore << " depth " << currentDepth << " nodes " << info->nodes <<
-			" nps " << nps << " time " << time << " pv " << Pr_move(info->bestMove) << std::endl;
+		if (bestScore > -VALUE_MATE && bestScore < -ISMATE)
+		{
+			std::cout << "info score mate " << -(bestScore + VALUE_MATE) / 2 << " depth " << currentDepth << " nodes " << info->nodes <<
+				" nps " << nps << " time " << time << " pv ";
+		}
+		else if (bestScore > ISMATE && bestScore < VALUE_MATE)
+			std::cout << "info score mate " << (VALUE_MATE - bestScore) / 2 + 1 << " depth " << currentDepth << " nodes " << info->nodes <<
+			" nps " << nps << " time " << time << " pv ";
+		else {
+			std::cout << "info score cp " << bestScore << " depth " << currentDepth << " nodes " << info->nodes <<
+				" nps " << nps << " time " << time << " pv ";
+		}
 	}
+
+	std::cout << Pr_move(info->bestMove) << std::endl;
 	std::cout << "bestmove " << Pr_move(info->bestMove) << "\n";
 }
 

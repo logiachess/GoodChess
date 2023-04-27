@@ -60,6 +60,22 @@ static inline int captured_piecetype(int move)
 	}
 	return start_piece % 6;
 }
+
+static inline void add_quiet_promotion(Moves_list* moves_list, int move)
+{
+	moves_list->moves[moves_list->count].move = move;
+	moves_list->moves[moves_list->count].score = 1'000'000;
+	++moves_list->count;
+}
+
+static inline void add_capture_promotion(Moves_list* moves_list, int move)
+{
+	moves_list->moves[moves_list->count].move = move;
+	moves_list->moves[moves_list->count].score = 1'000'500;
+	++moves_list->count;
+}
+
+
 static inline void add_quiet(Moves_list* moves_list, int move)
 {
 	moves_list->moves[moves_list->count].move = move;
@@ -171,10 +187,10 @@ static inline void generate_moves(Moves_list *list)
 					{
 						if (h7 >= from && from >= a7)
 						{
-							add_quiet(list, encode_move(from, to, piece, WQ, 0, 0, 0, 0));
-							add_quiet(list, encode_move(from, to, piece, WR, 0, 0, 0, 0));
-							add_quiet(list, encode_move(from, to, piece, WB, 0, 0, 0, 0));
-							add_quiet(list, encode_move(from, to, piece, WN, 0, 0, 0, 0));
+							add_quiet_promotion(list, encode_move(from, to, piece, WQ, 0, 0, 0, 0));
+							add_quiet_promotion(list, encode_move(from, to, piece, WR, 0, 0, 0, 0));
+							add_quiet_promotion(list, encode_move(from, to, piece, WB, 0, 0, 0, 0));
+							add_quiet_promotion(list, encode_move(from, to, piece, WN, 0, 0, 0, 0));
 						}
 						else
 						{
@@ -194,10 +210,10 @@ static inline void generate_moves(Moves_list *list)
 						if (h7 >= from && from >= a7)
 						{
 							// 4 promotions
-							add_capture(list, encode_move(from, to, piece, WQ, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, WR, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, WB, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, WN, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, WQ, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, WR, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, WB, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, WN, 1, 0, 0, 0));
 						}
 						else
 						{
@@ -383,10 +399,10 @@ static inline void generate_moves(Moves_list *list)
 					{
 						if (h2 >= from && from >= a2)
 						{
-							add_quiet(list, encode_move(from, to, piece, BQ, 0, 0, 0, 0));
-							add_quiet(list, encode_move(from, to, piece, BR, 0, 0, 0, 0));
-							add_quiet(list, encode_move(from, to, piece, BB, 0, 0, 0, 0));
-							add_quiet(list, encode_move(from, to, piece, BN, 0, 0, 0, 0));
+							add_quiet_promotion(list, encode_move(from, to, piece, BQ, 0, 0, 0, 0));
+							add_quiet_promotion(list, encode_move(from, to, piece, BR, 0, 0, 0, 0));
+							add_quiet_promotion(list, encode_move(from, to, piece, BB, 0, 0, 0, 0));
+							add_quiet_promotion(list, encode_move(from, to, piece, BN, 0, 0, 0, 0));
 						}
 						else
 						{
@@ -406,10 +422,10 @@ static inline void generate_moves(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (h2 >= from && from >= a2)
 						{
-							add_capture(list, encode_move(from, to, piece, BQ, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, BR, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, BB, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, BN, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, BQ, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, BR, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, BB, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, BN, 1, 0, 0, 0));
 						}
 						else
 						{
@@ -617,10 +633,10 @@ static inline void generate_captures(Moves_list *list)
 						if (h7 >= from && from >= a7)
 						{
 							// 4 promotions
-							add_capture(list, encode_move(from, to, piece, WQ, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, WR, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, WB, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, WN, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, WQ, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, WR, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, WB, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, WN, 1, 0, 0, 0));
 						}
 						else
 						{
@@ -763,10 +779,10 @@ static inline void generate_captures(Moves_list *list)
 						to = bitscan_forward(attacks);
 						if (h2 >= from && from >= a2)
 						{
-							add_capture(list, encode_move(from, to, piece, BQ, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, BR, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, BB, 1, 0, 0, 0));
-							add_capture(list, encode_move(from, to, piece, BN, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, BQ, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, BR, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, BB, 1, 0, 0, 0));
+							add_capture_promotion(list, encode_move(from, to, piece, BN, 1, 0, 0, 0));
 						}
 						else
 						{

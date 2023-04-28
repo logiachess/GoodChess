@@ -3,12 +3,13 @@
 
 
 /* HEADERS */
+#include <cstring>
 #include "types.h"
 #include "board.h"
 #include "bitboard.h"
 #include "magic.h"
 #include "attacks.h"
-#include <cstring>
+#include "search.h" // killer, heuristic
 
 
 /* DEFINITIONS */
@@ -32,6 +33,11 @@ static int mvv_lva[6][5] = {
 	101, 201, 301, 401, 501,
 	100, 200, 300, 400, 500
 };
+
+
+
+extern int killer_moves[2][MAX_PLY];
+extern int history_heuristic[PIECE_NUMB][SQUARE_NUMB];
 
 
 /* MACROS */
@@ -58,20 +64,31 @@ static inline int captured_piecetype(int move)
 			break;
 		}
 	}
-	return start_piece % 6;
+	return (start_piece % 6);
 }
 
 static inline void add_quiet_promotion(Moves_list* moves_list, int move)
 {
 	moves_list->moves[moves_list->count].move = move;
-	moves_list->moves[moves_list->count].score = 1'000'000;
+	if (killer_moves[0][ply] == move)
+	{
+		moves_list->moves[moves_list->count].score = 1'009'000;
+	}
+	else if (killer_moves[1][ply] == move)
+	{
+		moves_list->moves[moves_list->count].score = 1'008'000;
+	}
+	else
+	{
+		moves_list->moves[moves_list->count].score = 1'000'000;
+	}
 	++moves_list->count;
 }
 
 static inline void add_capture_promotion(Moves_list* moves_list, int move)
 {
 	moves_list->moves[moves_list->count].move = move;
-	moves_list->moves[moves_list->count].score = 1'000'500;
+	moves_list->moves[moves_list->count].score = 1'020'000;
 	++moves_list->count;
 }
 
@@ -79,14 +96,26 @@ static inline void add_capture_promotion(Moves_list* moves_list, int move)
 static inline void add_quiet(Moves_list* moves_list, int move)
 {
 	moves_list->moves[moves_list->count].move = move;
-	moves_list->moves[moves_list->count].score = 0;
+	if (killer_moves[0][ply] == move)
+	{
+		moves_list->moves[moves_list->count].score = 9'000;
+	}
+	else if (killer_moves[1][ply] == move)
+	{
+		moves_list->moves[moves_list->count].score = 8'000;
+	}
+	else
+	{
+		moves_list->moves[moves_list->count].score = history_heuristic[get_move_piece(move)][get_move_to(move)];
+	}
+
 	++moves_list->count;
 }
 
 static inline void add_capture(Moves_list* moves_list, int move)
 {
 	moves_list->moves[moves_list->count].move = move;
-	moves_list->moves[moves_list->count].score = mvv_lva[get_move_piece(move) % 6][captured_piecetype(move) % 6];
+	moves_list->moves[moves_list->count].score = mvv_lva[get_move_piece(move) % 6][captured_piecetype(move) % 6] + 10'000;
 	++moves_list->count;
 }
 

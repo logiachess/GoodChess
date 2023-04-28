@@ -15,8 +15,7 @@ static constexpr int SIZEOF_BITBOARD = 96;
 static constexpr int SIZEOF_OCCUPANCIES = 24;
 
 static constexpr int MAX_MOVES = 256;
-static constexpr int MAX_PLY = 246;
-static constexpr int MAX_DEPTH = 128;
+static constexpr int MAX_PLY = 256;
 
 
 enum Square	// board squares
@@ -28,7 +27,7 @@ enum Square	// board squares
 	a4, b4, c4, d4, e4, f4, g4, h4,
 	a3, b3, c3, d3, e3, f3, g3, h3,
 	a2, b2, c2, d2, e2, f2, g2, h2,
-	a1, b1, c1, d1, e1, f1, g1, h1, NO_SQUARE
+	a1, b1, c1, d1, e1, f1, g1, h1, NO_SQUARE, SQUARE_NUMB = 64
 };
 
 enum Boolean {
@@ -61,7 +60,7 @@ enum PieceType : int {
 enum Piece {
 	WP, WN, WB, WR, WQ, WK,
 	BP, BN, BB, BR, BQ, BK,
-	BLANK_PIECE, NO_PIECE
+	BLANK_PIECE, NO_PIECE, PIECE_NUMB = 12
 };
 
 
@@ -86,6 +85,7 @@ enum Value : int {
 	RookValue = 550, 
 	QueenValue = 1000
 };
+
 
 
 #define ENABLE_INCR_OPERATORS_ON(T)                                \

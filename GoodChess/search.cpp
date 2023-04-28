@@ -7,26 +7,30 @@
 #include <algorithm>
 
 
+int killer_moves[2][MAX_PLY];
+int history_heuristic[PIECE_NUMB][SQUARE_NUMB];
+
+
 // Clear search information for a new search
 static void ClearForSearch(Search_info* info) {
 
-	//// Define indices
-	//int index = 0;
-	//int index2 = 0;
+	// Define indices
+	int index = 0;
+	int index2 = 0;
 
-	//// Clear search hisotry
-	//for (index = 0; index < 13; ++index) {
-	//	for (index2 = 0; index2 < BRD_SQ_NUM; ++index2) {
-	//		pos->searchHistory[index][index2] = 0;
-	//	}
-	//}
+	// Clear history
+	for (index = 0; index < PIECE_NUMB; ++index) {
+		for (index2 = 0; index2 < SQUARE_NUMB; ++index2) {
+			history_heuristic[index][index2] = 0;
+		}
+	}
 
-	//// Clear killer moves
-	//for (index = 0; index < 2; ++index) {
-	//	for (index2 = 0; index2 < MAXDEPTH; ++index2) {
-	//		pos->searchKillers[index][index2] = 0;
-	//	}
-	//}
+	// Clear killer moves
+	for (index = 0; index < 2; ++index) {
+		for (index2 = 0; index2 < MAX_PLY; ++index2) {
+			killer_moves[index][index2] = 0;
+		}
+	}
 
 	////table->overWrite = 0;
 	//table->hit = 0;
@@ -79,12 +83,12 @@ static inline int Quiescence(int alpha, int beta)
 		Score = -Quiescence(-beta, -alpha); // Recursively call function
 
 		take_board();
+		if (Score >= beta)
+		{
+			return beta;
+		}
 		if (Score > alpha)
 		{
-			if (Score >= beta)
-			{
-				return beta;
-			}
 			alpha = Score;
 		}
 	}
@@ -133,11 +137,15 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 
 		if (Score >= beta)
 		{
+			killer_moves[1][ply] = killer_moves[0][ply];
+			killer_moves[0][ply] = list->moves[MoveNum].move;
 			return beta;
 		}
 
 		if (Score > alpha)
 		{
+			history_heuristic[get_move_piece(list->moves[MoveNum].move)][get_move_to(list->moves[MoveNum].move)] += depth;
+
 			alpha = Score;
 			if (ply == 0)
 			{

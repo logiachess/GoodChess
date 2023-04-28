@@ -9,12 +9,12 @@
 /* DEFINITIONS */
 
 
+
 /* MACROS */
 
 
 /* FUNCTIONS */
 void search_position(Search_info *info);
-
 
 
 

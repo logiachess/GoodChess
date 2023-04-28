@@ -112,7 +112,7 @@ static void ParsePosition(const std::string& command) {
 
 static void ParseGo(const std::string& line)
 {
-	int search_depth = MAX_DEPTH, movetime = -1, movestogo = 25;
+	int search_depth = MAX_PLY, movetime = -1, movestogo = 25;
 	long long nodes = -1;
 	int time = -1; int inc = 0;
 	bool movestogoset = false;

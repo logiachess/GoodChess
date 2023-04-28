@@ -99,9 +99,12 @@ static const int mirror_score[128] =
 
 
 /* FUNCTIONS */
+
+// print move scores
+
 static inline void sort_moves(int moveNum, Moves_list * list)
 {
-    int temp;
+    Move temp;
     int bestScore = -VALUE_INFINITE;
     int bestNum = moveNum;
 
@@ -113,9 +116,9 @@ static inline void sort_moves(int moveNum, Moves_list * list)
         }
     }
     // Reorder movelist
-    temp = list->moves[moveNum].move;
-    list->moves[moveNum].move = list->moves[bestNum].move;
-    list->moves[bestNum].move = temp;
+    temp = list->moves[moveNum];
+    list->moves[moveNum] = list->moves[bestNum];
+    list->moves[bestNum] = temp;
 }
 
 

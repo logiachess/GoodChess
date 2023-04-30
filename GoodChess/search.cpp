@@ -130,6 +130,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 		{
 			continue;
 		}
+		int move = list->moves[MoveNum].move;
 		++legal_moves;
 		Score = -NegaMax(-beta, -alpha, depth - 1, info);
 
@@ -137,19 +138,28 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 
 		if (Score >= beta)
 		{
-			killer_moves[1][ply] = killer_moves[0][ply];
-			killer_moves[0][ply] = list->moves[MoveNum].move;
+			if (not get_move_capture(move))
+			{
+				killer_moves[1][ply] = killer_moves[0][ply];
+				killer_moves[0][ply] = move;
+			}
+			//killer_moves[1][ply] = killer_moves[0][ply];
+			//killer_moves[0][ply] = move;
 			return beta;
 		}
 
 		if (Score > alpha)
 		{
-			history_heuristic[get_move_piece(list->moves[MoveNum].move)][get_move_to(list->moves[MoveNum].move)] += depth;
+			if (not get_move_capture(move))
+			{
+				history_heuristic[get_move_piece(move)][get_move_to(move)] += depth;
+			}/*
+			history_heuristic[get_move_piece(move)][get_move_to(move)] += depth;*/
 
 			alpha = Score;
 			if (ply == 0)
 			{
-				info->bestMove = list->moves[MoveNum].move;
+				info->bestMove = move;
 			}
 		}
 	}

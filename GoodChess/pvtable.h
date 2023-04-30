@@ -7,24 +7,7 @@
 
 
 /* DEFINITIONS */
-typedef struct
-{
-	int age;
-
-	U64 smp_data; // Data
-	U64 smp_key; // Position key
-} HASHENTRY;
-
-typedef struct
-{
-	HASHENTRY* pTable;
-	int numEntries;
-	int newWrite;
-	int overWrite;
-	int hit;
-	int cut;
-	int currentAge;
-} HASHTABLE;
+extern HASHTABLE HashTable[1];
 
 
 /* MACROS */
@@ -38,8 +21,9 @@ typedef struct
 
 /* FUNCTIONS */
 void InitHashTable(HASHTABLE* table, const int MB);
-
+int GetPvLine(const int depth, BOARD* pos, const HASHTABLE* table);
 void ClearHashTable(HASHTABLE* table);
+void StoreHashEntry(BOARD* pos, HASHTABLE* table, const int move, int score, const int flags, const int depth);
 
 
 

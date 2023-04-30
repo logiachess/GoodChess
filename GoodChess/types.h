@@ -16,6 +16,7 @@ static constexpr int SIZEOF_OCCUPANCIES = 24;
 
 static constexpr int MAX_MOVES = 256;
 static constexpr int MAX_PLY = 256;
+static constexpr int MAX_HASH = 512;
 
 
 enum Square	// board squares
@@ -86,22 +87,25 @@ enum Value : int {
 	QueenValue = 1000
 };
 
+enum { HFNONE, HFALPHA, HFBETA, HFEXACT};
+
 typedef struct
 {
 	int side = -1;
 	int enpassant = NO_SQUARE;
-	int castle = {};
-	Bitboard bitboards[12] = {};
-	Bitboard occupancies[3] = {};
+	int castle;
+
+	Bitboard bitboards[12];
+	Bitboard occupancies[3];
 	int hisPly = 0; // total game
 	int ply = 0; // search
 	int fiftymove = 0;
 
 	U64 posKey = 0;
-	int pvArray[MAX_PLY] = {};
+	int pvArray[MAX_PLY];
 
-	int killer_moves[2][MAX_PLY] = {};
-	int history_heuristic[PIECE_NUMB][SQUARE_NUMB] = {};
+	int killer_moves[2][MAX_PLY];
+	int history_heuristic[PIECE_NUMB][SQUARE_NUMB];
 } BOARD;
 
 
@@ -133,6 +137,24 @@ typedef struct
 
 
 
+typedef struct
+{
+	int age;
+
+	U64 smp_data; // Data
+	U64 smp_key; // Position key
+} HASHENTRY;
+
+typedef struct
+{
+	HASHENTRY* pTable;
+	int numEntries;
+	int newWrite;
+	int overWrite;
+	int hit;
+	int cut;
+	int currentAge;
+} HASHTABLE;
 
 
 #define ENABLE_INCR_OPERATORS_ON(T)                                \

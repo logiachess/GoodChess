@@ -39,6 +39,7 @@ static int mvv_lva[6][5] = {
 
 
 /* FUNCTIONS */
+
 static inline int captured_piecetype(int move, BOARD*pos)
 {
 	int start_piece, end_piece;
@@ -1077,6 +1078,26 @@ static inline int make_move(int move, BOARD * pos)
 	return TRUE;
 }
 
+
+static inline bool MoveExists(BOARD* pos, const int move) {
+
+	Moves_list list[1];
+	generate_moves(list, pos);
+
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+
+		copy_board(pos);
+		if (!make_move(list->moves[MoveNum].move, pos)) {
+			continue;
+		}
+		if (list->moves[MoveNum].move == move) {
+			return true;
+		}
+		take_board(pos);
+	}
+
+	return false;
+}
 
 
 

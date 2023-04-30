@@ -14,7 +14,7 @@
 
 
 /* FUNCTIONS */
-void search_position(Search_info *info, BOARD*pos);
+void search_position(Search_info *info, BOARD*pos, HASHTABLE*table);
 
 
 

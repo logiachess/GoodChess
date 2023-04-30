@@ -9,7 +9,7 @@
 
 
 // Clear search information for a new search
-static void ClearForSearch(Search_info* info, BOARD*pos) {
+static void ClearForSearch(Search_info* info, BOARD*pos, HASHTABLE * table) {
 
 	// Define indices
 	int index = 0;
@@ -29,10 +29,10 @@ static void ClearForSearch(Search_info* info, BOARD*pos) {
 		}
 	}
 
-	////table->overWrite = 0;
-	//table->hit = 0;
-	//table->cut = 0;
-	//++table->currentAge; // Incremement current hash table age
+	//table->overWrite = 0;
+	table->hit = 0;
+	table->cut = 0;
+	++table->currentAge; // Incremement current hash table age
 	pos->ply = 0; // Set search ply to 0
 
 	// Reset search info
@@ -95,7 +95,7 @@ static inline int Quiescence(int alpha, int beta, BOARD*pos)
 
 
 
-static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, BOARD*pos)
+static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, BOARD*pos, HASHTABLE *table)
 {
 	bool Check = InCheck(pos);
 	//if (Check)
@@ -110,18 +110,25 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, BOA
 		return Quiescence(alpha, beta, pos);
 	}
 
+	// Check for draw or repetition
+	if ((pos->fiftymove >= 100) && pos->ply) {
+		return VALUE_DRAW;
+	}
 
-	int Score = -VALUE_INFINITE;
 
 
 	Moves_list list[1];
 	generate_moves(list, pos);
 
 	int legal_moves = 0;
+	int BestMove = 0;
+	int Score = -VALUE_INFINITE;
+	int OldAlpha = alpha;
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
 		sort_moves(MoveNum, list);
+
 		copy_board(pos);
 		if (!make_move(list->moves[MoveNum].move, pos))
 		{
@@ -129,34 +136,34 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, BOA
 		}
 		int move = list->moves[MoveNum].move;
 		++legal_moves;
-		Score = -NegaMax(-beta, -alpha, depth - 1, info, pos);
+
+		Score = -NegaMax(-beta, -alpha, depth - 1, info, pos, table);
 
 		take_board(pos);
 
-		if (Score >= beta)
-		{
-			//if (not get_move_capture(move))
-			//{
-			//	killer_moves[1][ply] = killer_moves[0][ply];
-			//	killer_moves[0][ply] = move;
-			//}
-			pos->killer_moves[1][pos->ply] = pos->killer_moves[0][pos->ply];
-			pos->killer_moves[0][pos->ply] = move;
-			return beta;
-		}
-
 		if (Score > alpha)
 		{
+
 			//if (not get_move_capture(move))
 			//{
 			//	history_heuristic[get_move_piece(move)][get_move_to(move)] += depth;
 			//}
 			pos->history_heuristic[get_move_piece(move)][get_move_to(move)] += depth;
 
+			BestMove = move;
 			alpha = Score;
-			if (pos->ply == 0)
+
+
+			if (Score >= beta)
 			{
-				info->bestMove = move;
+				//if (not get_move_capture(move))
+				//{
+				//	killer_moves[1][ply] = killer_moves[0][ply];
+				//	killer_moves[0][ply] = move;
+				//}
+				pos->killer_moves[1][pos->ply] = pos->killer_moves[0][pos->ply];
+				pos->killer_moves[0][pos->ply] = move;
+				return beta;
 			}
 		}
 	}
@@ -173,23 +180,34 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, BOA
 		}
 	}
 
+	if (alpha != OldAlpha)
+	{
+		StoreHashEntry(pos, table, BestMove, alpha, HFEXACT, depth); // Store hash entry of position
+	}
+	else {
+		StoreHashEntry(pos, table, BestMove, alpha, HFALPHA, depth); // Store hash entry of position
+	}
+
 	return alpha;
 }
 
 
-static inline void iterative_deepen(Search_info *info, BOARD*pos)
+static inline void iterative_deepen(Search_info *info, BOARD*pos, HASHTABLE *table)
 {
 	int bestScore = -VALUE_INFINITE;
-	int currentDepth = 1;
-	for (; currentDepth <= info->S_depth; ++currentDepth)
+	int pvMoves = 0;
+
+
+	for (int currentDepth = 1; currentDepth <= info->S_depth; ++currentDepth)
 	{
 		info->bestMove = 0;
 		info->nodes = 0;
 
 
-		bestScore = NegaMax(-VALUE_INFINITE, VALUE_INFINITE, currentDepth, info, pos);
+		bestScore = NegaMax(-VALUE_INFINITE, VALUE_INFINITE, currentDepth, info, pos, table);
 
-
+		pvMoves = GetPvLine(currentDepth, pos, table);
+		info->bestMove = pos->pvArray[0];
 
 		long time = get_time_ms() - info->starttime;
 		U64 nps = info->nodes / (time + !time) * 1000;
@@ -208,17 +226,22 @@ static inline void iterative_deepen(Search_info *info, BOARD*pos)
 			std::cout << "info score cp " << bestScore << " depth " << currentDepth << " nodes " << info->nodes <<
 				" nps " << nps << " time " << time << " pv ";
 		}
-		std::cout << Pr_move(info->bestMove) << std::endl;
+		for (int count = 0; count < pvMoves; ++count)
+		{
+			// print PV move
+			std::cout << Pr_move(pos->pvArray[count]) << " ";
+		}
+		std::cout << std::endl;
 	}
 	std::cout << "bestmove " << Pr_move(info->bestMove) << "\n";
 }
 
 
 
-void search_position(Search_info *info, BOARD*pos)
+void search_position(Search_info *info, BOARD*pos, HASHTABLE * table)
 {
-	ClearForSearch(info, pos);
-	iterative_deepen(info, pos);
+	ClearForSearch(info, pos, table);
+	iterative_deepen(info, pos, table);
 }
 
 

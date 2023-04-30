@@ -3,6 +3,7 @@
 #include "board.h"
 #include "search.h"
 #include "uci.h"
+#include "pvtable.h"
 
 
 int main()
@@ -14,13 +15,13 @@ int main()
 	info->quit = FALSE;
 
 
-	//HashTable->pTable = NULL;
-	//InitHashTable(HashTable, 512);
+	HashTable->pTable = NULL;
+	InitHashTable(HashTable, 16);
 
 	Uci_Loop(pos, info);
 
 
-	/*free(HashTable->pTable);*/
+	free(HashTable->pTable);
 	return 0;
 }
 

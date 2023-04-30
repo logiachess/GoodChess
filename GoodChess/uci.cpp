@@ -2,6 +2,7 @@
 #include "movegen.h"
 #include "perft.h"
 #include "search.h"
+#include "pvtable.h"
 #include <iostream>
 
 #include "evaluate.h"
@@ -9,14 +10,16 @@
 
 enum Uci_commands
 {
-	U_unrecognized, U_go, U_ucinewgame, U_stop, U_perft, U_quit, U_position, U_uci, U_isready, U_display
+	U_unrecognized, U_go, U_ucinewgame, U_stop,
+	U_perft, U_quit, U_position, U_uci, U_isready,
+	U_display, U_setoption
 };
 
 static std::map<std::string, Uci_commands> map_Uci_commands =
 {
 	{"go", U_go}, {"ucinewgame", U_ucinewgame}, {"stop", U_stop}, {"perft", U_perft}, 
 	{"quit", U_quit}, {"position", U_position}, {"uci", U_uci}, {"isready", U_isready},
-	{"d", U_display}
+	{"d", U_display}, {"setoption", U_setoption}
 };
 
 //convert a move to coordinate notation to internal notation
@@ -110,6 +113,29 @@ static void ParsePosition(const std::string& command, BOARD*pos) {
 	}
 }
 
+static inline void ParseSetoption(const std::string& input)
+{
+	std::vector<std::string> tokens = split_command(input);
+
+	if (tokens.size() < 5)
+	{
+		std::cout << "Invalid setoption format" << "\n";
+		return;
+	}
+	if (tokens.at(2) == "Hash")
+	{
+		int MB = std::stoi(tokens.at(4));
+		if (MB < 4) MB = 4;
+		if (MB > MAX_HASH) MB = MAX_HASH;
+		printf("Set Hash to %d MB\n", MB);
+		InitHashTable(HashTable, MB);
+	}
+	else std::cout << "Unknown command: " << input << std::endl;
+	return;
+
+}
+
+
 static void ParseGo(const std::string& line, BOARD*pos, Search_info *info)
 {
 	int search_depth = MAX_PLY, movetime = -1, movestogo = 25;
@@ -120,52 +146,62 @@ static void ParseGo(const std::string& line, BOARD*pos, Search_info *info)
 	std::vector<std::string> tokens = split_command(line);
 
 	//loop over all the tokens and parse the commands
-	for (size_t i = 1; i < tokens.size(); ++i) {
+	for (size_t i = 1; i < tokens.size(); ++i)
+	{
 
-		if (tokens.at(1) == "infinite") {
+		if (tokens.at(1) == "infinite")
+		{
 			continue;
 		}
 
-		if (tokens.at(i) == "winc" && pos->side == WHITE) {
+		if (tokens.at(i) == "winc" && pos->side == WHITE)
+		{
 			inc = std::stoi(tokens[i + 1]);
 			continue;
 		}
 
-		if (tokens.at(i) == "binc" && pos->side == BLACK) {
+		if (tokens.at(i) == "binc" && pos->side == BLACK)
+		{
 			inc = std::stoi(tokens[i + 1]);
 			continue;
 		}
 
-		if (tokens.at(i) == "wtime" && pos->side == WHITE) {
+		if (tokens.at(i) == "wtime" && pos->side == WHITE)
+		{
 			time = std::stoi(tokens[i + 1]);
 			info->timeset = true;
 			continue;
 		}
-		if (tokens.at(i) == "btime" && pos->side == BLACK) {
+		if (tokens.at(i) == "btime" && pos->side == BLACK)
+		{
 			time = std::stoi(tokens[i + 1]);
 			info->timeset = true;
 			continue;
 		}
 
-		if (tokens.at(i) == "movestogo") {
+		if (tokens.at(i) == "movestogo")
+		{
 			movestogo = std::stoi(tokens[i + 1]);
 			movestogoset = true;
 			continue;
 		}
 
-		if (tokens.at(i) == "movetime") {
+		if (tokens.at(i) == "movetime")
+		{
 			movetime = std::stoi(tokens[i + 1]);
 			time = movetime;
 			info->timeset = true;
 			continue;
 		}
 
-		if (tokens.at(i) == "depth") {
+		if (tokens.at(i) == "depth")
+		{
 			search_depth = std::stoi(tokens[i + 1]);
 			continue;
 		}
 
-		if (tokens.at(i) == "nodes") {
+		if (tokens.at(i) == "nodes")
+		{
 			nodes = std::stoi(tokens[i + 1]);
 			continue;
 		}
@@ -177,7 +213,8 @@ static void ParseGo(const std::string& line, BOARD*pos, Search_info *info)
 
 	// calculate
 	//calculate time allocation for the move
-	if (info->timeset and movetime != -1) {
+	if (info->timeset and movetime != -1)
+	{
 		time -= safety_overhead;
 		info->stoptime = info->starttime + time + inc;
 		info->optstoptime = info->starttime + time + inc;
@@ -209,7 +246,7 @@ static void ParseGo(const std::string& line, BOARD*pos, Search_info *info)
 	std::cout << "stop: " << info->stoptime << " ";
 	std::cout << "depth: " << info->S_depth << " \n";
 
-	search_position(info, pos);
+	search_position(info, pos, HashTable);
 }
 
 
@@ -221,11 +258,10 @@ void Uci_Loop(BOARD* pos, Search_info * info)
 	bool parsed_position = FALSE;
 
 
-
 	// Start uci
 	printf("id name %s\n", NAME);
 	printf("id author Nathanael Lu\n");
-	//printf("option name Hash type spin default 512 min 4 max %d\n", MAX_HASH);
+	printf("option name Hash type spin default 512 min 4 max %d\n", MAX_HASH);
 	//printf("option name OwnBook type check default false\n");
 	//printf("option name Threads type spin default 1 min 1 max %d\n", MAXTHREADS);
 	printf("uciok\n");
@@ -320,6 +356,11 @@ void Uci_Loop(BOARD* pos, Search_info * info)
 		case (U_unrecognized):
 		{
 			printf("Unknown command\n");
+			break;
+		}
+		case (U_setoption):
+		{
+			ParseSetoption(input);
 			break;
 		}
 		// End switch

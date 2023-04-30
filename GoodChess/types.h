@@ -86,6 +86,53 @@ enum Value : int {
 	QueenValue = 1000
 };
 
+typedef struct
+{
+	int side = -1;
+	int enpassant = NO_SQUARE;
+	int castle = {};
+	Bitboard bitboards[12] = {};
+	Bitboard occupancies[3] = {};
+	int hisPly = 0; // total game
+	int ply = 0; // search
+	int fiftymove = 0;
+
+	U64 posKey = 0;
+	int pvArray[MAX_PLY] = {};
+
+	int killer_moves[2][MAX_PLY] = {};
+	int history_heuristic[PIECE_NUMB][SQUARE_NUMB] = {};
+} BOARD;
+
+
+typedef struct
+{
+	long long nodes;
+
+	// time calculations
+
+	bool depthset = false;
+	bool nodesset = false;
+	bool timeset = false;
+	int movestogo;
+
+	// end conditions
+	int starttime;
+	int stoptime;
+	int optstoptime;
+	long long S_nodes;
+	int S_depth;
+
+	int stopped;
+	int quit;
+
+	// placeholder
+	int bestMove;
+
+} Search_info;
+
+
+
 
 
 #define ENABLE_INCR_OPERATORS_ON(T)                                \
@@ -118,30 +165,6 @@ typedef struct
 
 } Moves_list;
 
-typedef struct
-{
-	long long nodes;
-
-	// time calculations
-
-	bool depthset = false;
-	bool nodesset = false;
-	bool timeset = false;
-	int movestogo;
-
-	// end conditions
-	int starttime;
-	int stoptime;
-	int optstoptime;
-	long long S_nodes;
-	int S_depth;
-
-	int stopped;
-
-	// placeholder
-	int bestMove;
-
-} Search_info;
 
 
 static constexpr int encode_move(int source, int target, Piece piece, int promotion, int capture, int twosquarepawn, int enpas, int castling)

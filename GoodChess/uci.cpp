@@ -20,7 +20,7 @@ static std::map<std::string, Uci_commands> map_Uci_commands =
 };
 
 //convert a move to coordinate notation to internal notation
-static int ParseMove(const std::string& move_string) {
+static int ParseMove(const std::string& move_string, BOARD*pos) {
 
 	// parse source square
 	const int from = (move_string[0] - 'a') +  (8 - (move_string[1] - '0')  ) * 8;
@@ -29,7 +29,7 @@ static int ParseMove(const std::string& move_string) {
 	const int to = (move_string[2] - 'a') +  (8 - (move_string[3] - '0')  ) * 8;
 
 	Moves_list list[1];
-	generate_moves(list);
+	generate_moves(list, pos);
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
@@ -68,23 +68,23 @@ static int ParseMove(const std::string& move_string) {
 
 
 // parses the moves part of a fen string and plays all the moves included
-static void parse_moves(const std::string moves)
+static void parse_moves(const std::string moves, BOARD*pos)
 {
 	std::vector<std::string> move_tokens = split_command(moves);
 	// loop over moves within a move string
 	for (size_t i = 0; i < move_tokens.size(); ++i) {
 		// make move on the chess board
-		make_move(ParseMove(move_tokens[i]));
+		make_move(ParseMove(move_tokens[i], pos), pos);
 	}
 }
 
 // parse UCI "position" command
-static void ParsePosition(const std::string& command) {
+static void ParsePosition(const std::string& command, BOARD*pos) {
 
 	// parse UCI "startpos" command
 	if (command.find("startpos") != std::string::npos) {
 		// init chess board with start position
-		parse_fen(start_position);
+		parse_fen(start_position, pos);
 	}
 
 	// parse UCI "fen" command
@@ -93,11 +93,11 @@ static void ParsePosition(const std::string& command) {
 		// if a "fen" command is available within command string
 		if (command.find("fen") != std::string::npos) {
 			// init chess board with position from FEN string
-			parse_fen(command.substr(command.find("fen") + 4, std::string::npos));
+			parse_fen(command.substr(command.find("fen") + 4, std::string::npos), pos);
 		}
 		else {
 			// init chess board with start position
-			parse_fen(start_position);
+			parse_fen(start_position, pos);
 		}
 
 	}
@@ -106,17 +106,16 @@ static void ParsePosition(const std::string& command) {
 	if (command.find("moves") != std::string::npos) {
 		int string_start = command.find("moves") + 6;
 		std::string moves_substr = command.substr(string_start, std::string::npos);
-		parse_moves(moves_substr);
+		parse_moves(moves_substr, pos);
 	}
 }
 
-static void ParseGo(const std::string& line)
+static void ParseGo(const std::string& line, BOARD*pos, Search_info *info)
 {
 	int search_depth = MAX_PLY, movetime = -1, movestogo = 25;
 	long long nodes = -1;
 	int time = -1; int inc = 0;
 	bool movestogoset = false;
-	Search_info info[1];
 
 	std::vector<std::string> tokens = split_command(line);
 
@@ -127,22 +126,22 @@ static void ParseGo(const std::string& line)
 			continue;
 		}
 
-		if (tokens.at(i) == "winc" && side == WHITE) {
+		if (tokens.at(i) == "winc" && pos->side == WHITE) {
 			inc = std::stoi(tokens[i + 1]);
 			continue;
 		}
 
-		if (tokens.at(i) == "binc" && side == BLACK) {
+		if (tokens.at(i) == "binc" && pos->side == BLACK) {
 			inc = std::stoi(tokens[i + 1]);
 			continue;
 		}
 
-		if (tokens.at(i) == "wtime" && side == WHITE) {
+		if (tokens.at(i) == "wtime" && pos->side == WHITE) {
 			time = std::stoi(tokens[i + 1]);
 			info->timeset = true;
 			continue;
 		}
-		if (tokens.at(i) == "btime" && side == BLACK) {
+		if (tokens.at(i) == "btime" && pos->side == BLACK) {
 			time = std::stoi(tokens[i + 1]);
 			info->timeset = true;
 			continue;
@@ -210,14 +209,14 @@ static void ParseGo(const std::string& line)
 	std::cout << "stop: " << info->stoptime << " ";
 	std::cout << "depth: " << info->S_depth << " \n";
 
-	search_position(info);
+	search_position(info, pos);
 }
 
 
 
 
 
-void Uci_Loop()
+void Uci_Loop(BOARD* pos, Search_info * info)
 {
 	bool parsed_position = FALSE;
 
@@ -270,16 +269,16 @@ void Uci_Loop()
 
 			if (!parsed_position) // call parse position function
 			{
-				ParsePosition("position startpos");
+				ParsePosition("position startpos", pos);
 			}
-			ParseGo(input);
+			ParseGo(input, pos, info);
 			break;
 		}
 
 		case (U_position):
 		{
 			// call parse position function
-			ParsePosition(input);
+			ParsePosition(input, pos);
 			parsed_position = true;
 			break;
 		}
@@ -293,7 +292,7 @@ void Uci_Loop()
 
 		case (U_ucinewgame):
 		{
-			ParsePosition("position startpos\n");
+			ParsePosition("position startpos\n", pos);
 			break;
 		}
 		case (U_perft):
@@ -301,14 +300,14 @@ void Uci_Loop()
 			const int p_depth = std::stoi(tokens[1]);
 			if (!parsed_position) // call parse position function
 			{
-				ParsePosition("position startpos");
+				ParsePosition("position startpos", pos);
 			}
-			perft_test(p_depth);
+			perft_test(p_depth, pos);
 			break;
 			}
 		case (U_display):
 		{
-			print_board();
+			print_board(pos);
 			break;
 		}
 		case (U_uci):

@@ -155,7 +155,6 @@ const int rook_relevant_occupancy[64] = {
 
 void InitAll()
 {
-	init_bitboards();
 	init_sliders_attacks(BISHOP);
 	init_sliders_attacks(ROOK);
 

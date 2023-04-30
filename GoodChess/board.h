@@ -9,6 +9,7 @@
 
 
 /* DEFINITIONS */
+
 extern std::map<char, int> char_pieces;
 
 extern const char ascii_pieces[];
@@ -26,24 +27,24 @@ extern int fiftymove;
 
 
 /* MACROS */
-#define copy_board()                                                      \
-    U64 bitboards_copy[12], occupancies_copy[3];                          \
+#define copy_board(pos)                                                      \
+    Bitboard bitboards_copy[12], occupancies_copy[3];                          \
     int side_copy, enpassant_copy, castle_copy;                           \
-    memcpy(bitboards_copy, bitboards, 96);                                \
-    memcpy(occupancies_copy, occupancies, 24);                            \
-    side_copy = side, enpassant_copy = enpassant, castle_copy = castle;   \
+    memcpy(bitboards_copy, pos->bitboards, 96);                                \
+    memcpy(occupancies_copy, pos->occupancies, 24);                            \
+    side_copy = pos->side, enpassant_copy = pos->enpassant, castle_copy = pos->castle;   \
 
 // restore board state
-#define take_board()                                                       \
-    memcpy(bitboards, bitboards_copy, 96);                                \
-    memcpy(occupancies, occupancies_copy, 24);                            \
-    side = side_copy, enpassant = enpassant_copy, castle = castle_copy;    \
-    --ply; --hisPly; --fiftymove;                                           \
+#define take_board(pos)                                                       \
+    memcpy(pos->bitboards, bitboards_copy, 96);                                \
+    memcpy(pos->occupancies, occupancies_copy, 24);                            \
+    pos->side = side_copy, pos->enpassant = enpassant_copy, pos->castle = castle_copy;    \
+    --pos->ply; --pos->hisPly; --pos->fiftymove;                                           \
 
 
 /* FUNCTIONS */
-extern void print_board();
-extern void parse_fen(const std::string& command);
+extern void print_board(BOARD *pos);
+extern void parse_fen(const std::string& command, BOARD*pos);
 extern char* Pr_move(int move);
 extern void print_moves_list(const Moves_list *moves_list);
 

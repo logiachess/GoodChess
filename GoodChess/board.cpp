@@ -26,18 +26,19 @@ std::map<char, int> char_pieces = {
 
 const char ascii_pieces[] = "PNBRQKpnbrqk. ";
 
-int side = -1;
-int enpassant = NO_SQUARE;
-int castle;
-Bitboard bitboards[12] = {};
-Bitboard occupancies[3] = {};
-int hisPly; // total game
-int ply; // search
-int fiftymove;
+//
+//int side = -1;
+//int enpassant = NO_SQUARE;
+//int castle;
+//Bitboard bitboards[12] = {};
+//Bitboard occupancies[3] = {};
+//int hisPly; // total game
+//int ply; // search
+//int fiftymove;
 
 
 
-void print_board()
+void print_board(BOARD *pos)
 {
 	printf("\n\n");
 	for (int rank = 0; rank < 8; ++rank)
@@ -50,7 +51,7 @@ void print_board()
 
 			for (int bb_piece = WP; bb_piece <= BK; ++bb_piece)
 			{
-				if (get_bit(bitboards[bb_piece], square))
+				if (get_bit(pos->bitboards[bb_piece], square))
 				{
 					piece = bb_piece;
 				}
@@ -63,20 +64,20 @@ void print_board()
 
 	// Print files
 	printf("\n     a b c d e f g h \n\n");
-	printf("     Side:   %s\n", (!side) ? "white" : "black");
-	printf("     Enpas: %s\n", (enpassant != NO_SQUARE) ? sq_to_coord[enpassant] : "None");
-	printf("     Castle: %c%c%c%c\n\n", (castle & WKCA) ? 'K' : '-', (castle & WQCA) ? 'Q' : '-', (castle & BKCA) ? 'k' : '-', (castle & BQCA) ? 'q' : '-');
+	printf("     Side:   %s\n", (!pos->side) ? "white" : "black");
+	printf("     Enpas: %s\n", (pos->enpassant != NO_SQUARE) ? sq_to_coord[pos->enpassant] : "None");
+	printf("     Castle: %c%c%c%c\n\n", (pos->castle & WKCA) ? 'K' : '-', (pos->castle & WQCA) ? 'Q' : '-', (pos->castle & BKCA) ? 'k' : '-', (pos->castle & BQCA) ? 'q' : '-');
 }
 
 
-void parse_fen(const std::string& command)
+void parse_fen(const std::string& command, BOARD * pos)
 {
-	memset(bitboards, 0ULL, sizeof(bitboards));
+	memset(pos->bitboards, 0ULL, SIZEOF_BITBOARD);
 
-	memset(occupancies, 0ULL, sizeof(occupancies));
+	memset(pos->occupancies, 0ULL, SIZEOF_OCCUPANCIES);
 
-	enpassant = NO_SQUARE;
-	castle = 0;
+	pos->enpassant = NO_SQUARE;
+	pos->castle = 0;
 
 	std::vector<std::string> tokens = split_command(command);
 	const std::string pos_string = tokens.at(0);
@@ -107,7 +108,7 @@ void parse_fen(const std::string& command)
 				// init piece type
 				const int piece = char_pieces[current_char];
 
-				set_bit(bitboards[piece], square);
+				set_bit(pos->bitboards[piece], square);
 				++fen_counter;
 			}
 
@@ -130,22 +131,22 @@ void parse_fen(const std::string& command)
 	}
 
 	//Parse turn
-	side = (turn == "w") ? WHITE : BLACK;
+	pos->side = (turn == "w") ? WHITE : BLACK;
 
 	//Parse castling rights
 	for (const char c : castle_perm) {
 		switch (c) {
 		case 'K':
-			(castle) |= WKCA;
+			(pos->castle) |= WKCA;
 			break;
 		case 'Q':
-			(castle) |= WQCA;
+			(pos->castle) |= WQCA;
 			break;
 		case 'k':
-			(castle) |= BKCA;
+			(pos->castle) |= BKCA;
 			break;
 		case 'q':
-			(castle) |= BQCA;
+			(pos->castle) |= BQCA;
 			break;
 		case '-':
 			break;
@@ -159,20 +160,20 @@ void parse_fen(const std::string& command)
 		const int rank = 8 - (ep_square[1] - '0');
 
 		// init enpassant square
-		enpassant = rank * 8 + file;
+		pos->enpassant = rank * 8 + file;
 	}
 	// no enpassant square
 	else
-		enpassant = NO_SQUARE;
+		pos->enpassant = NO_SQUARE;
 
 	//Read fifty moves counter
 	if (!fifty_move.empty()) {
-		fiftymove = std::stoi(fifty_move);
+		pos->fiftymove = std::stoi(fifty_move);
 	}
 	//Read Hisply moves counter
 	if (!HisPly.empty()) {
 
-		hisPly = std::stoi(HisPly);
+		pos->hisPly = std::stoi(HisPly);
 
 	}
 
@@ -180,17 +181,17 @@ void parse_fen(const std::string& command)
 	// loop over white pieces bitboards
 	for (int piece = WP; piece <= WK; ++piece)
 		// populate white occupancy bitboard
-		occupancies[WHITE] |= bitboards[piece];
+		pos->occupancies[WHITE] |= pos->bitboards[piece];
 
 	// loop over black pieces bitboards
 	for (int piece = BP; piece <= BK; ++piece)
 		// populate white occupancy bitboard
-		occupancies[BLACK] |= bitboards[piece];
+		pos->occupancies[BLACK] |= pos->bitboards[piece];
 
 
 	// init all occupancies
-	occupancies[BOTH] |= occupancies[WHITE];
-	occupancies[BOTH] |= occupancies[BLACK];
+	pos->occupancies[BOTH] |= pos->occupancies[WHITE];
+	pos->occupancies[BOTH] |= pos->occupancies[BLACK];
 }
 
 

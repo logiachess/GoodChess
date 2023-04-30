@@ -3,16 +3,13 @@
 #include "movegen.h"
 #include "misc.h"
 #include "board.h"
+#include "pvtable.h"
 #include <iostream>
 #include <algorithm>
 
 
-int killer_moves[2][MAX_PLY];
-int history_heuristic[PIECE_NUMB][SQUARE_NUMB];
-
-
 // Clear search information for a new search
-static void ClearForSearch(Search_info* info) {
+static void ClearForSearch(Search_info* info, BOARD*pos) {
 
 	// Define indices
 	int index = 0;
@@ -21,14 +18,14 @@ static void ClearForSearch(Search_info* info) {
 	// Clear history
 	for (index = 0; index < PIECE_NUMB; ++index) {
 		for (index2 = 0; index2 < SQUARE_NUMB; ++index2) {
-			history_heuristic[index][index2] = 0;
+			pos->history_heuristic[index][index2] = 0;
 		}
 	}
 
 	// Clear killer moves
 	for (index = 0; index < 2; ++index) {
 		for (index2 = 0; index2 < MAX_PLY; ++index2) {
-			killer_moves[index][index2] = 0;
+			pos->killer_moves[index][index2] = 0;
 		}
 	}
 
@@ -36,7 +33,7 @@ static void ClearForSearch(Search_info* info) {
 	//table->hit = 0;
 	//table->cut = 0;
 	//++table->currentAge; // Incremement current hash table age
-	ply = 0; // Set search ply to 0
+	pos->ply = 0; // Set search ply to 0
 
 	// Reset search info
 	info->stopped = 0;
@@ -48,17 +45,17 @@ static void ClearForSearch(Search_info* info) {
 
 
 
-static inline bool InCheck()
+static inline bool InCheck(BOARD*pos)
 {
-	return is_square_attacked((side == BLACK) ? bitscan_forward(bitboards[BK]) : bitscan_forward(bitboards[WK]), (side ^ 1) );
+	return is_square_attacked((pos->side == BLACK) ? bitscan_forward(pos->bitboards[BK]) : bitscan_forward(pos->bitboards[WK]), (pos->side ^ 1), pos );
 }
 
 
-static inline int Quiescence(int alpha, int beta)
+static inline int Quiescence(int alpha, int beta, BOARD*pos)
 {
 
 
-	int Score = eval();
+	int Score = eval(pos);
 	// Standing pat
 	if (Score >= beta) {
 		return beta;
@@ -67,22 +64,22 @@ static inline int Quiescence(int alpha, int beta)
 		alpha = Score;
 	}
 	Moves_list list[1];
-	generate_captures(list);
+	generate_captures(list, pos);
 
 	Score = -VALUE_INFINITE;
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
 		sort_moves(MoveNum, list);
-		copy_board();
-		if (!make_move(list->moves[MoveNum].move))
+		copy_board(pos);
+		if (!make_move(list->moves[MoveNum].move, pos))
 		{
 			continue;
 		}
 
 
-		Score = -Quiescence(-beta, -alpha); // Recursively call function
+		Score = -Quiescence(-beta, -alpha, pos); // Recursively call function
 
-		take_board();
+		take_board(pos);
 		if (Score >= beta)
 		{
 			return beta;
@@ -98,9 +95,9 @@ static inline int Quiescence(int alpha, int beta)
 
 
 
-static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
+static inline int NegaMax(int alpha, int beta, int depth, Search_info *info, BOARD*pos)
 {
-	bool Check = InCheck();
+	bool Check = InCheck(pos);
 	//if (Check)
 	//{
 	//	depth = std::max(1, depth + 1);
@@ -110,7 +107,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 	if (depth <= 0)
 	{
 		++info->nodes;
-		return Quiescence(alpha, beta);
+		return Quiescence(alpha, beta, pos);
 	}
 
 
@@ -118,46 +115,46 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 
 
 	Moves_list list[1];
-	generate_moves(list);
+	generate_moves(list, pos);
 
 	int legal_moves = 0;
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
 	{
 		sort_moves(MoveNum, list);
-		copy_board();
-		if (!make_move(list->moves[MoveNum].move))
+		copy_board(pos);
+		if (!make_move(list->moves[MoveNum].move, pos))
 		{
 			continue;
 		}
 		int move = list->moves[MoveNum].move;
 		++legal_moves;
-		Score = -NegaMax(-beta, -alpha, depth - 1, info);
+		Score = -NegaMax(-beta, -alpha, depth - 1, info, pos);
 
-		take_board();
+		take_board(pos);
 
 		if (Score >= beta)
 		{
-			if (not get_move_capture(move))
-			{
-				killer_moves[1][ply] = killer_moves[0][ply];
-				killer_moves[0][ply] = move;
-			}
-			//killer_moves[1][ply] = killer_moves[0][ply];
-			//killer_moves[0][ply] = move;
+			//if (not get_move_capture(move))
+			//{
+			//	killer_moves[1][ply] = killer_moves[0][ply];
+			//	killer_moves[0][ply] = move;
+			//}
+			pos->killer_moves[1][pos->ply] = pos->killer_moves[0][pos->ply];
+			pos->killer_moves[0][pos->ply] = move;
 			return beta;
 		}
 
 		if (Score > alpha)
 		{
-			if (not get_move_capture(move))
-			{
-				history_heuristic[get_move_piece(move)][get_move_to(move)] += depth;
-			}/*
-			history_heuristic[get_move_piece(move)][get_move_to(move)] += depth;*/
+			//if (not get_move_capture(move))
+			//{
+			//	history_heuristic[get_move_piece(move)][get_move_to(move)] += depth;
+			//}
+			pos->history_heuristic[get_move_piece(move)][get_move_to(move)] += depth;
 
 			alpha = Score;
-			if (ply == 0)
+			if (pos->ply == 0)
 			{
 				info->bestMove = move;
 			}
@@ -168,7 +165,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 	{
 		if (Check)
 		{
-			return (-VALUE_MATE + ply); // Checkmate
+			return (-VALUE_MATE + pos->ply); // Checkmate
 		}
 		else
 		{
@@ -180,7 +177,7 @@ static inline int NegaMax(int alpha, int beta, int depth, Search_info *info)
 }
 
 
-static inline void iterative_deepen(Search_info *info)
+static inline void iterative_deepen(Search_info *info, BOARD*pos)
 {
 	int bestScore = -VALUE_INFINITE;
 	int currentDepth = 1;
@@ -190,7 +187,7 @@ static inline void iterative_deepen(Search_info *info)
 		info->nodes = 0;
 
 
-		bestScore = NegaMax(-VALUE_INFINITE, VALUE_INFINITE, currentDepth, info);
+		bestScore = NegaMax(-VALUE_INFINITE, VALUE_INFINITE, currentDepth, info, pos);
 
 
 
@@ -218,10 +215,10 @@ static inline void iterative_deepen(Search_info *info)
 
 
 
-void search_position(Search_info *info)
+void search_position(Search_info *info, BOARD*pos)
 {
-	ClearForSearch(info);
-	iterative_deepen(info);
+	ClearForSearch(info, pos);
+	iterative_deepen(info, pos);
 }
 
 

@@ -2,10 +2,6 @@
 
 
 
-void init_bitboards()
-{
-}
-
 
 void print_bitboard(Bitboard bitboard)
 {

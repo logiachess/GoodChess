@@ -122,21 +122,21 @@ static inline void sort_moves(int moveNum, Moves_list * list)
 }
 
 
-static inline int evaluate_material()
+static inline int evaluate_material(BOARD *pos)
 {
 	int score = 0;
 
 	for (int bb_piece = WP; bb_piece <= BK; ++bb_piece)
 	{
-		score += (count_bits(bitboards[bb_piece]) * material_score[bb_piece]);
+		score += (count_bits(pos->bitboards[bb_piece]) * material_score[bb_piece]);
 	}
 
-	return (side == WHITE) ? score : -score;
+	return (pos->side == WHITE) ? score : -score;
 };
 
 
 // position evaluation
-static inline int evaluate_position()
+static inline int evaluate_position(BOARD * pos)
 {
     int score = 0;
     Bitboard bitboard;
@@ -145,7 +145,7 @@ static inline int evaluate_position()
     for (int bb_piece = WP; bb_piece <= WK; ++bb_piece)
     {
         // init piece bitboard copy
-        bitboard = bitboards[bb_piece];
+        bitboard = pos->bitboards[bb_piece];
         // loop over pieces within a bitboard
         while (bitboard)
         {
@@ -174,7 +174,7 @@ static inline int evaluate_position()
     for (int bb_piece = BP; bb_piece <= BK; ++bb_piece)
     {
         // init piece bitboard copy
-        bitboard = bitboards[bb_piece];
+        bitboard = pos->bitboards[bb_piece];
         // loop over pieces within a bitboard
         while (bitboard)
         {
@@ -202,13 +202,13 @@ static inline int evaluate_position()
     }
 
     // return final evaluation based on side
-    return (side == WHITE) ? score : -score;
+    return (pos->side == WHITE) ? score : -score;
 }
 
 
-inline int eval()
+inline int eval(BOARD * pos)
 {
-	return evaluate_position();
+	return evaluate_position(pos);
 }
 
 

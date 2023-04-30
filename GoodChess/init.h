@@ -14,7 +14,6 @@
 
 /* FUNCTIONS */
 void InitAll();
-extern void init_bitboards();
 extern void init_magic_numbers();
 
 

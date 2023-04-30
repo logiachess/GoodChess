@@ -16,7 +16,7 @@
 
 
 /* FUNCTIONS */	
-void Uci_Loop();
+void Uci_Loop(BOARD* pos, Search_info* info);
 
 
 
